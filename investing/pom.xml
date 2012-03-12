@@ -1,0 +1,83 @@
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->
+<project>
+
+  <parent>
+    <groupId>com.jonschang</groupId>
+    <artifactId>application</artifactId>
+    <version>1</version>
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>com.jonschang</groupId>
+  <artifactId>investing</artifactId>
+  <version>1</version>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>com.jonschang</groupId>
+  		<artifactId>framework</artifactId>
+  		<version>1</version>
+  		<exclusions>
+  			<exclusion>
+  				<artifactId>hibernate</artifactId>
+  				<groupId>org.hibernate</groupId>
+  			</exclusion>
+  		</exclusions>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.jonschang</groupId>
+  		<artifactId>machine-learning</artifactId>
+  		<version>1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.jonschang</groupId>
+  		<artifactId>parallel</artifactId>
+  		<version>1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.htmlparser</groupId>
+	    <artifactId>htmlparser</artifactId>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.slf4j</groupId>
+	      <artifactId>slf4j-log4j12</artifactId>
+  	</dependency>
+  	<dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+	</dependency>
+	<dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+	</dependency>
+	<dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>javassist</groupId>
+		<artifactId>javassist</artifactId>
+	</dependency>
+  </dependencies>
+  
+</project>

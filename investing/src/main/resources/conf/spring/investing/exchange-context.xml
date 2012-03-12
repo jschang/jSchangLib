@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" 
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->	
+<beans>
+
+	<bean id="IndicesExchangeContext" class="com.jonschang.investing.stocks.model.StockExchangeContext">
+		<property name="exchange">
+			<bean class="com.jonschang.investing.stocks.model.StockExchange">
+				<property name="symbol" value="INDEX"/>
+			</bean>
+		</property>
+		<property name="businessCalendar">
+			<ref bean="GenericUSExchangeContextBusinessCalendar"/>
+		</property>
+	</bean>
+
+	<bean id="NASDAQExchangeContext" class="com.jonschang.investing.stocks.model.StockExchangeContext">
+		<property name="exchange">
+			<bean class="com.jonschang.investing.stocks.model.StockExchange">
+				<property name="symbol" value="NASDAQ"/>
+			</bean>
+		</property>
+		<property name="businessCalendar">
+			<ref bean="GenericUSExchangeContextBusinessCalendar"/>
+		</property>
+	</bean>
+	
+	<bean id="NYSEExchangeContext" class="com.jonschang.investing.stocks.model.StockExchangeContext">
+		<property name="exchange">
+			<bean class="com.jonschang.investing.stocks.model.StockExchange">
+				<property name="symbol" value="NYSE"/>
+			</bean>
+		</property>
+		<property name="businessCalendar">
+			<ref bean="GenericUSExchangeContextBusinessCalendar"/>
+		</property>		
+	</bean>
+	
+	<bean id="AMEXExchangeContext" class="com.jonschang.investing.stocks.model.StockExchangeContext">
+		<property name="exchange">
+			<bean class="com.jonschang.investing.stocks.model.StockExchange">
+				<property name="symbol" value="AMEX"/>
+			</bean>
+		</property>
+		<property name="businessCalendar">
+			<ref bean="GenericUSExchangeContextBusinessCalendar"/>
+		</property>
+	</bean>
+		
+	<bean id="ExchangeContextFactory" class="com.jonschang.investing.model.ExchangeContextFactory">
+		<property name="resourceMap">
+			<map>
+				<entry key="INDEX">
+					<ref bean="IndicesExchangeContext"/>
+				</entry>
+				<entry key="NasdaqGS">
+					<ref bean="NASDAQExchangeContext"/>
+				</entry>
+				<entry key="NYSE">
+					<ref bean="NYSEExchangeContext"/>
+				</entry>
+				<entry key="AMEX">
+					<ref bean="AMEXExchangeContext"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+</beans>

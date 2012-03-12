@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" 
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->	
+<beans>
+
+	<bean 
+		id="GenericUSExchangeContextBusinessCalendar" 
+		scope="prototype" 
+		class="com.jonschang.utils.BusinessCalendar">
+		
+		<property name="openingHour" value="9"/>
+		<property name="openingMinute" value="30"/>
+		<property name="closingHour" value="16"/>
+		<property name="closingMinute" value="0"/>
+		
+		<property name="businessWeek">
+			<set>
+				<bean name="java.util.Calendar.MONDAY" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.TUESDAY" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.WEDNESDAY" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.THURSDAY" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.FRIDAY" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+			</set>
+		</property>
+		
+		<property name="federalHolidays">
+			<set>
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.NEW_YEARS" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.MARTIN_LUTHER_KING" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.PRESIDENTS" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.GOOD_FRIDAY" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.MEMORIAL" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.INDEPENDENCE" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.LABOR" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.THANKSGIVING" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="com.jonschang.utils.FederalHolidayCalendar$Holidays.CHRISTMAS" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				
+			</set>
+		</property>
+		
+	</bean>
+
+</beans>

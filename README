@@ -1,0 +1,19 @@
+jSchangLib
+
+First, the license is LGPLv3 and the product is currently incomplete.
+
+This project was intended to be a stock trading agent
+which would use a genetic algorithm to determine the
+optimal set of network inputs for training a feed-forward
+neural network.  The feed forward network would, naturally,
+output a "Buy" or "Sell" signal.
+
+I got pretty far, I think, but there is still a massive amount of 
+work to be done.
+
+For a while I thought I'd just keep it to myself, 
+but I'm interested to see if anyone can use it as a base
+and, perhaps, kick me some ends if they can make it work.
+
+=)
+

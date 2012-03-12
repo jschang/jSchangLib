@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" 
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->	
+<beans>
+
+	<bean id="YahooStockExchangeService" class="com.jonschang.investing.stocks.YahooStockExchangeService">
+	</bean>
+	
+	<bean id="StockExchangeService" class="com.jonschang.investing.stocks.StockExchangeService">
+		<property name="exchanges">
+			<map>
+				<entry key="INDEX">
+					<bean class="com.jonschang.investing.stocks.model.StockExchange">
+						<property name="stockExchangeId" value="1"/>
+						<property name="name" value="Exchange-less Indices"/>
+						<property name="symbol" value="INDEX"/>
+						<property name="symbols">
+							<list>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="INDEX"/>
+								</bean>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="DJI"/>
+								</bean>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="SNP"/>
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</entry>
+				<entry key="Nasdaq">
+					<bean class="com.jonschang.investing.stocks.model.StockExchange">
+						<property name="stockExchangeId" value="2"/>
+						<property name="name" value="National Association of Securities Dealers Automated Quotations"/>
+						<property name="symbol" value="NasdaqGS"/>
+						<property name="symbols">
+							<list>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="NasdaqGS"/>
+								</bean>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="NasdaqGM"/>
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</entry>
+				<entry key="NYSE">
+					<bean class="com.jonschang.investing.stocks.model.StockExchange">
+						<property name="stockExchangeId" value="3"/>
+						<property name="name" value="New York Stock Exchange"/>
+						<property name="symbol" value="NYSE"/>
+						<property name="symbols">
+							<list>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="NYSE"/>
+								</bean>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="NYSEArca"/>
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</entry>
+				<entry key="AMEX">
+					<bean class="com.jonschang.investing.stocks.model.StockExchange">
+						<property name="stockExchangeId" value="4"/>
+						<property name="name" value="American Stock Exchange"/>
+						<property name="symbol" value="AMEX"/>
+						<property name="symbols">
+							<list>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="AMEX"/>
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="ExchangeServiceFactory" class="com.jonschang.investing.ExchangeServiceFactory">
+		<property name="resourceMap">
+			<map>
+				<entry>
+					<key><value type="java.lang.Class">com.jonschang.investing.stocks.model.StockExchange</value></key>
+					<ref bean="StockExchangeService"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" 
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->
+<beans>
+
+	<bean id="HibernateStaticConfiguration"
+		class="org.hibernate.cfg.AnnotationConfiguration"/>
+		
+	<bean id="HibernateConfiguration"
+		factory-method="configure"
+		factory-bean="HibernateStaticConfiguration">
+		<constructor-arg index="0" type="java.lang.String" value="conf/hibernate3.cfg.xml"/>
+	</bean>
+	
+	<bean id="HSF"
+		factory-method="buildSessionFactory"
+		factory-bean="HibernateConfiguration"/>
+		
+</beans>

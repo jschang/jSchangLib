@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema 
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	targetNamespace="http://model.cluster.jonschang.com/Cluster" 
+	xmlns:tns="http://model.cluster.jonschang.com/Cluster" 
+	elementFormDefault="qualified">
+		
+	<complexType name="Authorization">
+		<attribute name="hash"  type="string" use="required"/>
+		<attribute name="value" type="string" use="required"/>
+	</complexType>
+	
+<!-- REQUESTS -->
+	
+	<complexType name="CommandRequest">
+		<sequence>
+			<element minOccurs="0" name="originNodeId" type="tns:NodeId"/>
+			<choice>
+				<element name="springCommand" type="tns:SpringCommand"/>
+				<element name="shellCommand" type="tns:ShellCommand"/>
+				<element name="factoryMethodCommand" type="tns:FactoryMethodCommand"/> 
+			</choice>
+		</sequence>
+		<attribute name="mode" use="required">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="async"/>
+					<enumeration value="sync"/>
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+	
+<!-- RESPONSES -->
+	
+	<complexType name="CommandAcceptedNotification">
+		<sequence>
+			<element minOccurs="1" name="nodeId" type="tns:NodeId"/>
+		</sequence>
+		<attribute name="commandUuid" type="string" use="required"/>
+	</complexType>
+	
+	<complexType name="TerminationNotification">
+		<sequence>
+			<element name="nodeId" type="tns:NodeId"/>
+		</sequence>
+	</complexType>
+
+<!-- DATA CONTAINERS -->
+
+	<complexType name="NodeConfiguration">
+		<all>
+			<!-- 
+				If the 15, 5 and 1 minute averages all fall below this, 
+				then terminate the least busy node, if it has lived
+				longer than the minimum lifetime.
+				This defaults to 5% across the board. 
+			-->
+			<element name="cpuLow" type="tns:ThreeFloatUsageInfo"/>
+			
+			<!--
+				If the 15, 5 and 1 minutes averages all rise above this,
+				then either provision a new child or do nothing (hoping that
+				the children will provision a new child).
+				These all default to 95%.
+			 -->
+			<element name="cpuHigh" type="tns:ThreeFloatUsageInfo"/>
+			<element name="memHigh" type="tns:ThreeFloatUsageInfo"/>
+			<!-- has no default -->
+			<element name="swapHigh" type="tns:ThreeFloatUsageInfo"/>
+		</all>
+		<!-- 
+			The minimum number of seconds a node will persist once provisioned.
+			This is desirable because in AWS a node _will_ cost an instance-hour
+			or more.  There is no point in decommissioning a node that has been up
+			for less than, say, 55 minutes.	
+			
+			Units are in minutes.
+			
+			default: 60 
+		-->
+		<attribute name="minLifetime" type="short"/>
+		<!--
+			The cluster will evolve into a node tree.  This specifies
+			the maximum depth of that tree.  A depth of 1 means that
+			the root node may provision children.  A depth of 2 means
+			that the children of the root node may provision children.
+			A depth of 0 means that the root node may provision no children.
+			
+			default: 0 
+		 -->
+		<attribute name="maxNodeDepth" type="short"/>
+		<!--
+			The number of children that each node depth may expand up
+			to.  For instance, a node depth of 2 with a max children 
+			of 2 can result in a root node with 2 children, each of
+			them having 2 children...so 7 nodes.
+			
+			default: 0 
+		 -->
+		<attribute name="maxChildren" type="short"/>
+		<!--
+			Status updates require polling children for their usage information.
+			This figure throttles that.  Really, given that the granularity
+			is only down to a minute, 15 seconds is probably not a bad number.
+			The last response time will also be taken into account.
+			
+			Units are in milliseconds.
+			
+			default: 15000 (15 seconds)  
+		 -->
+		<attribute name="statusUpdateInterval" type="long"/>
+	</complexType>
+
+	<complexType name="NodeInfo">
+		<all>
+			<element name="nodeId"     type="tns:NodeId" minOccurs="1"/>
+			<element name="rootNodeId"   type="tns:NodeId" minOccurs="1"/>
+			<element name="parentNodeId" type="tns:NodeId" minOccurs="1"/>
+			<element name="childNodes" minOccurs="1">
+				<complexType>
+					<sequence>
+						<element name="nodeId" type="tns:NodeId" maxOccurs="unbounded"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="serviceInfo" minOccurs="1">
+				<annotation><documentation><![CDATA[
+					This is where node info, such as from AWS EC2, is to be stored.
+				]]></documentation></annotation>
+				<complexType>
+					<choice minOccurs="1">
+						<any/>
+					</choice>
+					<attribute name="service" type="string" use="required"/>
+				</complexType>
+			</element>
+			<element name="cpuUsage"  type="tns:ThreeFloatUsageInfo" minOccurs="1"/>
+			<element name="memUsage"  type="tns:ThreeFloatUsageInfo" minOccurs="1"/>
+			<element name="swapUsage" type="tns:ThreeFloatUsageInfo" minOccurs="1"/>
+			<element name="commands" minOccurs="1">
+				<complexType>
+					<sequence>
+						<element name="command" type="tns:CommandInfo" maxOccurs="unbounded"/>
+					</sequence>
+					<attribute   name="count"   type="integer" use="required"/>
+				</complexType>
+			</element>
+		</all>
+		<attribute name="started"   type="date"    use="required"/>
+		<attribute name="nodeCount" type="long"    use="required"/>
+		<attribute name="depth"     type="integer" use="required"/>
+	</complexType>
+	
+	<complexType name="CommandInfo">
+		<sequence>
+			<element minOccurs="1" maxOccurs="1" name="id" type="tns:CommandId"/>
+			<element minOccurs="1" maxOccurs="1" name="request" type="tns:CommandRequest"/>
+			<element minOccurs="0" maxOccurs="1" name="error" type="string"/>
+			<element minOccurs="0" maxOccurs="1" name="result" type="string"/>
+		</sequence>	
+		<attribute name="runTime" type="long"/>
+		<attribute name="startedTime" type="date"/>
+		<attribute name="status">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="running"/>
+					<enumeration value="complete"/>
+					<enumeration value="error"/>
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+	
+	<complexType name="CommandId">
+		<sequence>
+			<element minOccurs="1" name="acceptingnodeId" type="tns:NodeId"/>
+			<element minOccurs="1" name="originNodeId" type="tns:NodeId"/>
+		</sequence>
+		<attribute name="uuid" type="string"/>
+	</complexType>
+	
+	<complexType name="ThreeFloatUsageInfo">
+		<attribute name="one" type="float" use="required">
+			<annotation><documentation><![CDATA[
+				The average CPU percent in use over the last 1 minutes.
+			]]></documentation></annotation>
+		</attribute>
+		<attribute name="five" type="float" use="required">
+			<annotation><documentation><![CDATA[
+				The average CPU percent in use over the last 5 minutes.
+			]]></documentation></annotation>
+		</attribute>
+		<attribute name="fifteen" type="float" use="required">
+			<annotation><documentation><![CDATA[
+				The average CPU percentage in use over the last 15 minutes.
+			]]></documentation></annotation>
+		</attribute>
+	</complexType>
+	
+	<complexType name="ShellCommand">
+		<simpleContent>
+			<extension base="string"/>
+		</simpleContent>
+	</complexType>
+	
+	<complexType name="FactoryMethodCommand">
+		<all>
+			<element name="factoryMethod"   type="tns:MethodCall" minOccurs="1"/>
+			<element name="executionMethod" type="tns:MethodCall"/>
+		</all>
+		<attribute   name="factoryClass"    type="string"/>
+	</complexType>
+	
+	<complexType name="SpringCommand">
+		<all>
+			<element name="configuration">
+				<complexType>
+					<choice>
+						<any/>
+					</choice>
+				</complexType>
+			</element>
+			<element name="bean" type="string"/>
+			<element name="executionMethod" type="tns:MethodCall"/>
+		</all>
+	</complexType>
+	
+	<complexType name="MethodCall">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="type" type="string"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	
+	<complexType name="NodeId">
+		<attribute name="url" type="string" use="required"/>
+		<attribute name="uuid" type="string" use="required"/>
+	</complexType>
+	
+</schema>

@@ -1,0 +1,112 @@
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->
+<project default="compile">
+
+	<property environment="env"/>	
+	<path id="project.class.path">
+		<!--<fileset dir="${env.TOMCAT_HOME}/lib/" includes="*.jar"/>-->
+		<fileset dir="lib/" includes="*.jar"/>
+		<fileset dir="lib/cxf/"/>
+		<fileset dir="lib/jogl/"/>
+	</path>
+	<!--<import file="${env.TOMCAT_HOME}/bin/catalina-tasks.xml"/>-->
+	
+	<target name="clean">
+        <delete dir="build"/>
+    </target>
+	
+    <target name="compile-web">
+        	
+    	<echo>JAVA_HOME: ${env.JAVA_HOME}</echo>
+    	<echo>TOMCAT_HOME: ${env.TOMCAT_HOME}</echo>
+    	
+    	<delete dir="web-build/WEB-INF"/>
+    	<mkdir dir="web-build/WEB-INF/classes"/>
+		<copy todir="web-build/">
+			<fileset dir="web/"/>
+		</copy>
+    	
+    	<delete dir="web-build/WEB-INF/conf"/>
+    	<copy todir="web-build/WEB-INF/conf">
+			<fileset dir="conf/"/>
+		</copy>
+    	
+        <javac srcdir="src/java" destdir="web-build/WEB-INF/classes">
+        	<classpath refid="project.class.path"/>
+    	</javac>
+    	
+    </target>
+	
+	<target name="deploy-web" depends="compile-web">
+		<delete dir="${env.TOMCAT_HOME}/webapps/stocks/"/>
+		<copy todir="${env.TOMCAT_HOME}/webapps/stocks/">
+			<fileset dir="web-build/"/>
+		</copy>
+		<copy todir="${env.TOMCAT_HOME}/webapps/stocks/WEB-INF/">
+			<fileset dir="lib/"/>
+			<fileset dir="lib/cxf/"/>
+			<fileset dir="lib/jogl/"/>
+		</copy>
+	</target>
+	
+	<target name="compile">
+	        	
+    	<echo>JAVA_HOME: ${env.JAVA_HOME}</echo>
+    	<echo>TOMCAT_HOME: ${env.TOMCAT_HOME}</echo>
+    	
+    	<delete dir="bin/"/>
+    	
+   		<delete dir="bin/conf/"/>
+    	<copy todir="bin/conf/">
+			<fileset dir="src/xml/conf/"/>
+		</copy>
+		
+		<copy todir="bin/script/">
+			<fileset dir="src/script/"/>
+		</copy>
+		
+		<copy todir="bin/">
+			<fileset dir="src/java">
+				<exclude name="**/*.java"/>
+			</fileset>
+			<fileset dir="src/test">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+    	
+        <javac srcdir="src/java" destdir="bin/" debuglevel="lines,vars,source" debug="on">
+        	<classpath refid="project.class.path"/>
+    	</javac>
+		
+		<javac srcdir="src/test" destdir="bin/" debuglevel="lines,vars,source" debug="on">
+        	<classpath refid="project.class.path"/>
+    	</javac>
+    	
+    </target>
+	
+	<target name="deploy" depends="compile">
+		<delete dir="${env.TOMCAT_HOME}/webapps/stocks"/>
+		<copy todir="${env.TOMCAT_HOME}/webapps/stocks">
+			<fileset dir="build/"/>
+		</copy>
+	</target>
+
+</project>

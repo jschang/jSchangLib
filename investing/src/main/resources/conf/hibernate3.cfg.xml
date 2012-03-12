@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->
+<hibernate-configuration>
+
+    <!-- a SessionFactory instance listed as /jndi/name -->
+    <session-factory name="java:hibernate/SessionFactory">
+
+        <!-- properties -->
+		<property name="connection.username">stocks</property>
+		<property name="connection.password">st0ck5</property>
+		<property name="connection.url">jdbc:mysql://127.0.0.1/stocks</property>
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		
+		<property name="transaction.factory">org.hibernate.transaction.JTATransactionFactory</property>
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+		<property name="current_session_context_class">thread</property>
+		
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">false</property>
+
+		<!-- Drop and re-create the database schema on startup -->  
+		<property name="hbm2ddl.auto">create</property>
+
+        <!-- mapping files -->
+
+		<mapping class="com.jonschang.investing.model.GenericQuote"/>
+		<mapping class="com.jonschang.investing.model.GenericSymbol"/>
+		<mapping class="com.jonschang.investing.trading.AbstractAccount"/>
+
+        <mapping class="com.jonschang.investing.stocks.model.StockQuote"/>
+        <mapping class="com.jonschang.investing.stocks.model.Stock"/>
+        <mapping class="com.jonschang.investing.stocks.model.StockExchange"/>
+        <mapping class="com.jonschang.investing.stocks.model.StockExchangeSymbol"/>
+        <mapping class="com.jonschang.investing.stocks.model.StockEvent"/>
+        <mapping class="com.jonschang.investing.stocks.model.StockEventSplit"/>
+        <mapping class="com.jonschang.investing.stocks.model.StockEventDividend"/>
+        <mapping class="com.jonschang.investing.stocks.model.StockEventInsiderTransaction"/>
+        <mapping class="com.jonschang.investing.stocks.trading.StockTradingAccount"/>
+        <mapping class="com.jonschang.investing.stocks.trading.StockTransaction"/>
+        <mapping class="com.jonschang.investing.stocks.trading.StockPosition"/>
+
+    </session-factory>
+
+</hibernate-configuration>

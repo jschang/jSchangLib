@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" 
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->		
+<beans>
+
+	<bean 
+		id="ReutersFinancialStatementService"
+		scope="singleton"
+		class="com.jonschang.investing.stocks.ReutersFinancialStatementService">
+		<property name="serviceUrl" 
+			value="http://www.reuters.com/finance/stocks/incomeStatement?stmtType={STATEMENT_TYPE}&amp;perType={INTERVAL_TYPE}&amp;symbol={STOCK_SYMBOL}.{EXCHANGE_SYMBOL}"/>
+		<property name="intervalType" value="Annual"/>
+		<property name="intervalTypes">
+			<map>
+				<entry key="Annual" value="ANN"/>
+				<entry key="Quarterly" value="INT"/>
+			</map>
+		</property>
+		<property name="statementTypeMap">
+			<map>
+				<entry key="Income" value="INC"/>
+				<entry key="Balance" value="BAL"/>
+				<entry key="CashFlow" value="CAS"/>
+			</map>
+		</property>
+		<property name="exchangeSymbolMap">
+			<map>
+				<entry key="NYSE" value="N"/>
+				<entry key="NASDAQ" value="O"/>
+			</map>
+		</property>
+		<property name="filingMonths">	
+			<list>
+				<bean name="java.util.Calendar.MARCH" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.JUNE" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.SEPTEMBER" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				<bean name="java.util.Calendar.DECEMBER" 
+					class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="YahooHistoricalStockQuoteService"
+		scope="singleton"
+		class="com.jonschang.investing.stocks.YahooHistoricalStockQuoteService"/>
+
+	<bean id="QuoteServiceFactory" class="com.jonschang.investing.QuoteServiceFactory">
+		<property name="quoteServices">
+			<map>
+				<entry>
+					<key><value type="java.lang.Class">com.jonschang.investing.stocks.model.StockQuote</value></key>
+					<ref bean="YahooHistoricalStockQuoteService"/>
+				</entry>
+				<entry>
+					<key><value type="java.lang.Class">com.jonschang.investing.stocks.model.FinancialStatement</value></key>
+					<ref bean="ReutersFinancialStatementService"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+</beans>

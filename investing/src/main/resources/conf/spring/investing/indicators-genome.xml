@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" 
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+###############################
+# Copyright (C) 2012 Jon Schang
+# 
+# This file is part of jSchangLib, released under the LGPLv3
+# 
+# jSchangLib is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# jSchangLib is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
+###############################
+-->
+<beans>
+
+	<bean id="genetic-algorithm-factory" class="com.jonschang.ai.ga.SpringGeneticAlgFactory">
+		<property name="fitnessFunctionBeanName" value="investing-stocks-fitness-function"/>
+	</bean>
+
+	<bean id="investing-stocks-phenotype"/>
+	
+	<bean id="investing-stocks-fitness-function"/>
+	
+	<bean id="investing-stocks-gene-list" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<value>investing-stocks-gene-sma5</value>
+				<value>investing-stocks-gene-sma15</value>
+				<value>investing-stocks-gene-sma30</value>
+				<value>investing-stocks-gene-ema5</value>
+				<value>investing-stocks-gene-ema15</value>
+				<value>investing-stocks-gene-ema30</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="investing-stocks-date-publisher" class="com.jonschang.utils.GenericDatePublisher"/>
+	<bean id="investing-stocks-quote-adjuster" class="com.jonschang.investing.stocks.StockEventSplitAdjuster"/>
+	<bean id="investing-stocks-quote-publisher" class="com.jonschang.investing.GenericQuotePublisher">
+		<property name="datePublisher" ref="investing-stocks-date-publisher"/>
+		<property name="quoteAdjusters">
+			<list>
+				<ref bean="investing-stocks-quote-adjuster"/>
+			</list>
+		</property>
+		<property name="quoteClass" value="com.jonschang.investing.stocks.model.StockQuote"/>
+		<property name="timeInterval" value="DAY"/>
+	</bean>
+	
+	<bean id="investing-stocks-value-closing" scope="prototype" class="com.jonschang.investing.valuesource.SingleQuoteValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="returnType" value="3"/>
+	</bean>
+	
+	<bean id="investing-stocks-gene-sma5" scope="prototype" class="com.jonschang.investing.valuesource.AverageValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="valueSource" ref="investing-stocks-value-closing"/>
+		<property name="periods" value="5"/>
+	</bean>
+	
+	<bean id="investing-stocks-gene-sma15" scope="prototype" class="com.jonschang.investing.valuesource.AverageValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="valueSource" ref="investing-stocks-value-closing"/>
+		<property name="periods" value="15"/>
+	</bean>
+	
+	<bean id="investing-stocks-gene-sma30" scope="prototype" class="com.jonschang.investing.valuesource.AverageValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="valueSource" ref="investing-stocks-value-closing"/>
+		<property name="periods" value="30"/>
+	</bean>
+	
+	<bean id="investing-stocks-gene-ema5" scope="prototype" class="com.jonschang.investing.valuesource.EMAValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="valueSource" ref="investing-stocks-value-closing"/>
+		<property name="periods" value="5"/>
+	</bean>
+	
+	<bean id="investing-stocks-gene-ema15" scope="prototype" class="com.jonschang.investing.valuesource.EMAValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="valueSource" ref="investing-stocks-value-closing"/>
+		<property name="periods" value="15"/>
+	</bean>
+	
+	<bean id="investing-stocks-gene-ema30" scope="prototype" class="com.jonschang.investing.valuesource.EMAValueSource">
+		<property name="quotePublisher" ref="investing-stocks-quote-publisher"/>
+		<property name="valueSource" ref="investing-stocks-value-closing"/>
+		<property name="periods" value="30"/>
+	</bean>
+
+</beans>
