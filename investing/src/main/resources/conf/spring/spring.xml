@@ -23,7 +23,7 @@
 -->		
 <beans>
 
-	<import resource="classpath:conf/spring/hibernate.xml"/>	
-	<import resource="classpath:conf/spring/investing.xml"/>
+	<import resource="classpath:/conf/spring/hibernate.xml"/>	
+	<import resource="classpath:/conf/spring/investing.xml"/>
 
 </beans>

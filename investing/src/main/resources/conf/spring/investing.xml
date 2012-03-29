@@ -22,11 +22,11 @@
 ###############################
 -->
 <beans>
-	<import resource="classpath:conf/spring/investing/business-calendar.xml"/>
-	<import resource="classpath:conf/spring/investing/market-context.xml"/>
-	<import resource="classpath:conf/spring/investing/exchange-context.xml"/>
-	<import resource="classpath:conf/spring/investing/exchange-service.xml"/>
-	<import resource="classpath:conf/spring/investing/quotable-service.xml"/>
-	<import resource="classpath:conf/spring/investing/quote-service.xml"/>
+	<import resource="classpath:/conf/spring/investing/business-calendar.xml"/>
+	<import resource="classpath:/conf/spring/investing/market-context.xml"/>
+	<import resource="classpath:/conf/spring/investing/exchange-context.xml"/>
+	<import resource="classpath:/conf/spring/investing/exchange-service.xml"/>
+	<import resource="classpath:/conf/spring/investing/quotable-service.xml"/>
+	<import resource="classpath:/conf/spring/investing/quote-service.xml"/>
 	<!-- <import resource="classpath:conf/spring/investing/indicators-genome.xml"/> -->
 </beans>	

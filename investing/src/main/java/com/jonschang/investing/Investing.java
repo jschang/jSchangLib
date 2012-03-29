@@ -30,7 +30,7 @@ import com.jonschang.investing.model.*;
 public class Investing {
 
 	static private Investing instance;
-	static private String configPath = "conf/spring/spring.xml";
+	private BeanFactory beanFactory;
 	
 	synchronized static public Investing instance() {
 		if( instance==null ) {
@@ -40,25 +40,27 @@ public class Investing {
 		return instance;
 	}
 	
-	private BeanFactory bf = new XmlBeanFactory(new ClassPathResource(configPath));
+	private Investing() {
+		beanFactory = new XmlBeanFactory(new ClassPathResource("conf/spring/spring.xml"));
+	}
 	
 	public ExchangeServiceFactory getExchangeServiceFactory() {
-		return (ExchangeServiceFactory)(bf.getBean("ExchangeServiceFactory"));
+		return (ExchangeServiceFactory)(beanFactory.getBean("ExchangeServiceFactory"));
 	}
 	
 	public ExchangeContextFactory getExchangeContextFactory() {
-		return (ExchangeContextFactory)(bf.getBean("ExchangeContextFactory"));
+		return (ExchangeContextFactory)(beanFactory.getBean("ExchangeContextFactory"));
 	}
 	
 	public QuotableServiceFactory getQuotableServiceFactory() {
-		return (QuotableServiceFactory)(bf.getBean("QuotableServiceFactory"));
+		return (QuotableServiceFactory)(beanFactory.getBean("QuotableServiceFactory"));
 	}
 	
 	public QuoteServiceFactory getQuoteServiceFactory() {
-		return (QuoteServiceFactory)(bf.getBean("QuoteServiceFactory"));
+		return (QuoteServiceFactory)(beanFactory.getBean("QuoteServiceFactory"));
 	}
 	
 	public SessionFactory getSessionFactory() {
-		return (SessionFactory)bf.getBean("HSF");
+		return (SessionFactory)beanFactory.getBean("HSF");
 	}
 }
