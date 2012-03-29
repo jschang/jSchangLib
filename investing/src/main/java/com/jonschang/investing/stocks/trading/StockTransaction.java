@@ -45,7 +45,7 @@ public class StockTransaction implements Transaction<Stock,StockQuote,StockExcha
 		this.transactionId=id;
 	}
 
-	@Column(name="limit")
+	@Column(name="`limit`")
 	public double getLimit() {
 		return limit;
 	}

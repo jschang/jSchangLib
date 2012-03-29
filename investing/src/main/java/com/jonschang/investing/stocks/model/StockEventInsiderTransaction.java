@@ -43,7 +43,7 @@ public class StockEventInsiderTransaction extends StockEvent {
 	}
 	private String title = null;
 	
-	@Column(name="transaction",length=255)
+	@Column(name="`transaction`",length=255)
 	public String getTransaction() {
 		return transaction;
 	}
