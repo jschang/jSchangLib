@@ -38,14 +38,15 @@ public class YahooStockService extends StockService {
 			Parser parser = new Parser(url);
 			NodeList nodes = parser.parse(new ExtractNameNodeFilter());
 			if( nodes!=null && nodes.size()>0 ) {
-				java.util.regex.Pattern p = java.util.regex.Pattern.compile("<div class=\\\"hd\\\"><h2>([^<]*)</h2><span>[(]([^<]*): ([^)]*)[)]</span></div>");
+				java.util.regex.Pattern p = java.util.regex.Pattern.compile("<div class=\\\"hd\\\"><div class=\\\"title\\\"><h2>([^(]*)\\(([^)]*)\\)</h2> <span class=\\\"rtq_exch\\\"><span class=\\\"rtq_dash\\\">-</span>([^\\s]*) </span>");
+				//java.util.regex.Pattern p = java.util.regex.Pattern.compile("<div class=\\\"title\\\"><h2>([^<]*)</h2><span>[(]([^<]*): ([^)]*)[)]</span></div>");
 				java.util.regex.Matcher m = p.matcher(nodes.toHtml());
 				if( m.matches() ) {
 					java.util.regex.MatchResult mr = m.toMatchResult();
 					stock.setCompanyName(mr.group(1));
-					stock.setSymbol(mr.group(3));
+					stock.setSymbol(mr.group(2));
 					
-					String exchangeSymbol = mr.group(2);
+					String exchangeSymbol = mr.group(3);
 					
 					// if we couldn't find the stock under the symbol
 					if( stock.getStockExchange()!=null
@@ -170,7 +171,7 @@ public class YahooStockService extends StockService {
 				String clazz = tag.getAttribute("class");
 				
 				if( clazz!=null && parentClazz!=null
-					&& parentClazz.compareToIgnoreCase("yfi_quote_summary")==0 
+					&& parentClazz.compareToIgnoreCase("yfi_rt_quote_summary")==0 
 					&& clazz.compareToIgnoreCase("hd")==0 )
 					return true;
 			}

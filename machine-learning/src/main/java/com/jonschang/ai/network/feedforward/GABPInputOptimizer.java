@@ -147,48 +147,51 @@ public class GABPInputOptimizer extends AbstractNetworkTrainer<FeedForward>
 	
 	public boolean trainingIteration()
 	{
-		double newMSE=0;
-		int size=0;
+		double newMSE=100000;
 		double error=0;
 		this.lastMaxError=0;
 		
-		// if it has not been done since the last time train() was called
-			// fill a data texture as many entries from the training set source as possible
+		// create a set of input masks using the provided algorithm
 		
-		// if it has not been done since the last time train() was called
-		/*
-		 * In each texture, each row represents a network
-		 * 
-		 * there is a master configuration texture that holds:
-		 * 	- the number of layers in the network
-		 *  - the number of neurons in each layer
-		 *  
-		 * these textures scale to the width of the texture with the most values
-		 * 
-		 * there is a texture for each layer for each
-		 * 	- neuron threshold
-		 *  - neuron activation
-		 *  - neuron error
-		 *  
-		 * there is a texture for each layer for each
-		 *  - synapse weight, where each row represents the synapses from one neuron
-		 */
+		// assign the input masks to the GABPFeedForwards instance
 		
+		// train all the network clones on the available training data
+		int dataRow = 0;
 		for( TrainingSetSource.Pair entry: this.trainingData )
 		{
 			MathVector inputVec = entry.getInput();
 			MathVector outputVec = entry.getOutput();
 			
 			// perform training updates
+			feedForwards.computeInputLayer(dataRow);
+			for( int i=1; i<prototype.getAllLayers().size(); i++ ) {
+				feedForwards.computeNextLayer(i-1,i);
+			}
+			feedForwards.computeOutputError(dataRow);
+			for( int i=prototype.getAllLayers().size()-1; i>=1; i-- ) {
+				feedForwards.computePrevLayerError(i-1,i);
+			}
+			for( int i=prototype.getAllLayers().size()-1; i>0; i-- ) {
+				feedForwards.updateSynapses(i);
+			}
+			for( int i=prototype.getAllLayers().size()-1; i>=0; i-- ) {
+				feedForwards.updateThresholds(i);
+			}
 			
-			//newMSE += this.calculateResponseMSE(inputVec,outputVec);
-			size++;
+			feedForwards.readResults();
 			
-			this.lastMaxError=this.lastMaxError<error?error:this.lastMaxError;
+			float[] errors = feedForwards.getError().get(feedForwards.getError().size()-1);
+			float thisMaxError = 0.0f;
+			for(float thisError : errors) {
+				thisError = Math.abs(thisError);
+				thisMaxError = thisMaxError < thisError ? thisError : thisMaxError;
+			}			
+			this.lastMaxError=this.lastMaxError<thisMaxError?thisMaxError:this.lastMaxError;
 			
+			dataRow++;
 		}
 		
-		this.currentMSE = newMSE/size;
+		this.currentMSE = newMSE / dataRow;
 		
 		// save the current MSE
 		this.currentIteration++;

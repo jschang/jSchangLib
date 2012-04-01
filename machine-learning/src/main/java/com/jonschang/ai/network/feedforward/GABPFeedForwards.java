@@ -64,11 +64,11 @@ class GABPFeedForwards {
 	private float[] inputTrainingData = null;
 	private float[] outputTrainingData = null;
 	
-	private int inputs = 0;
-	private int outputs = 0;
-	private int copies = 0;
+	private int inputCount = 0;
+	private int outputCount = 0;
+	private int numberOfCopies = 0;
 	
-	private FeedForward prototype = null;
+	private FeedForward prototypeNetwork = null;
 	private TrainingSetSource trainingSetSource = null;
 	private List<MathVector> inputMaskVectors = null;
 	
@@ -86,24 +86,24 @@ class GABPFeedForwards {
 	public float[]       getLearningRate() { return learningRate; }
 	public float[]       getInputData()    { return inputTrainingData; }
 	public float[]       getOutputData()   { return outputTrainingData; }
-	public int           getCopies()       { return copies; }
+	public int           getCopies()       { return numberOfCopies; }
 	
 	public void computeInputLayer(int dataRow) {
 		cl_kernel kernel = kernels.get("computeInputLayer");
 		
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(clInputTrainingData));
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(clInputMasks));
-        clSetKernelArg(kernel, 2, Sizeof.cl_uint, Pointer.to(new int[]{inputs}));
+        clSetKernelArg(kernel, 2, Sizeof.cl_uint, Pointer.to(new int[]{inputCount}));
         clSetKernelArg(kernel, 3, Sizeof.cl_uint, Pointer.to(new int[]{dataRow}));
         
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(clInput.get(1)));
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(clActivation.get(1)));
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, Pointer.to(clThreshold.get(1)));
         clSetKernelArg(kernel, 7, Sizeof.cl_mem, Pointer.to(clSynapse.get(0)));
-        clSetKernelArg(kernel, 8, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(1).size()}));
+        clSetKernelArg(kernel, 8, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(1).size()}));
 
-        globalWorkSize[0]=prototype.getAllLayers().get(1).size();
-        globalWorkSize[1]=copies;
+        globalWorkSize[0]=prototypeNetwork.getAllLayers().get(1).size();
+        globalWorkSize[1]=numberOfCopies;
         
         clEnqueueNDRangeKernel(commandQueue.getCLCommandQueue(), kernel, 2, null, globalWorkSize, null, 0, null, null);
 	}
@@ -111,16 +111,16 @@ class GABPFeedForwards {
 		cl_kernel kernel = kernels.get("computeNextLayer");
 		
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(clActivation.get(backwardLayer)));
-        clSetKernelArg(kernel, 1, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(backwardLayer).size()}));
+        clSetKernelArg(kernel, 1, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(backwardLayer).size()}));
         
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(clInput.get(forwardLayer)));
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(clActivation.get(forwardLayer)));
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(clThreshold.get(forwardLayer)));
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(clSynapse.get(forwardLayer-1)));
-        clSetKernelArg(kernel, 6, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(forwardLayer).size()}));
+        clSetKernelArg(kernel, 6, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(forwardLayer).size()}));
 
-        globalWorkSize[0]=prototype.getAllLayers().get(forwardLayer).size();
-        globalWorkSize[1]=copies;
+        globalWorkSize[0]=prototypeNetwork.getAllLayers().get(forwardLayer).size();
+        globalWorkSize[1]=numberOfCopies;
         
         clEnqueueNDRangeKernel(commandQueue.getCLCommandQueue(), kernel, 2, null, globalWorkSize, null, 0, null, null);
 	}
@@ -130,16 +130,16 @@ class GABPFeedForwards {
 		int lastLayer = clInput.size()-1;
 		
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(clOutputTrainingData));
-        clSetKernelArg(kernel, 1, Sizeof.cl_uint, Pointer.to(new int[]{outputs}));
+        clSetKernelArg(kernel, 1, Sizeof.cl_uint, Pointer.to(new int[]{outputCount}));
         clSetKernelArg(kernel, 2, Sizeof.cl_uint, Pointer.to(new int[]{dataRow}));
         
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(clInput.get(lastLayer)));
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(clActivation.get(lastLayer)));
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(clError.get(lastLayer)));
-        clSetKernelArg(kernel, 6, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(lastLayer).size()}));
+        clSetKernelArg(kernel, 6, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(lastLayer).size()}));
 
-        globalWorkSize[0]=prototype.getAllLayers().get(lastLayer).size();
-        globalWorkSize[1]=copies;
+        globalWorkSize[0]=prototypeNetwork.getAllLayers().get(lastLayer).size();
+        globalWorkSize[1]=numberOfCopies;
         
         clEnqueueNDRangeKernel(commandQueue.getCLCommandQueue(), kernel, 2, null, globalWorkSize, null, 0, null, null);
 	}
@@ -148,14 +148,14 @@ class GABPFeedForwards {
 		
 		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(clInput.get(backwardLayer)));
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(clError.get(backwardLayer)));
-        clSetKernelArg(kernel, 2, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(backwardLayer).size()}));
+        clSetKernelArg(kernel, 2, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(backwardLayer).size()}));
 		
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(clError.get(forwardLayer)));
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(clSynapse.get(forwardLayer-1)));
-        clSetKernelArg(kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(forwardLayer).size()}));
+        clSetKernelArg(kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(forwardLayer).size()}));
 
-        globalWorkSize[0]=prototype.getAllLayers().get(backwardLayer).size();
-        globalWorkSize[1]=copies;
+        globalWorkSize[0]=prototypeNetwork.getAllLayers().get(backwardLayer).size();
+        globalWorkSize[1]=numberOfCopies;
         
         clEnqueueNDRangeKernel(commandQueue.getCLCommandQueue(), kernel, 2, null, globalWorkSize, null, 0, null, null);
 	}
@@ -169,12 +169,12 @@ class GABPFeedForwards {
 		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(clError.get(layer)));
 		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(clActivation.get(layer)));
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(clSynapse.get(layer-1)));
-        clSetKernelArg(kernel, 3, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(layer-1).size()}));
-        clSetKernelArg(kernel, 4, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(layer).size()}));
+        clSetKernelArg(kernel, 3, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(layer-1).size()}));
+        clSetKernelArg(kernel, 4, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(layer).size()}));
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(this.clLearningRate));
 
-        globalWorkSize[0]=prototype.getAllLayers().get(layer).size();
-        globalWorkSize[1]=copies;
+        globalWorkSize[0]=prototypeNetwork.getAllLayers().get(layer).size();
+        globalWorkSize[1]=numberOfCopies;
         
         clEnqueueNDRangeKernel(commandQueue.getCLCommandQueue(), kernel, 2, null, globalWorkSize, null, 0, null, null);
 	}
@@ -188,11 +188,11 @@ class GABPFeedForwards {
 		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(clError.get(layer)));
 		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(clActivation.get(layer)));
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(clThreshold.get(layer)));
-        clSetKernelArg(kernel, 3, Sizeof.cl_uint, Pointer.to(new int[]{prototype.getAllLayers().get(layer).size()}));
+        clSetKernelArg(kernel, 3, Sizeof.cl_uint, Pointer.to(new int[]{prototypeNetwork.getAllLayers().get(layer).size()}));
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(this.clLearningRate));
 
-        globalWorkSize[0]=prototype.getAllLayers().get(layer).size();
-        globalWorkSize[1]=copies;
+        globalWorkSize[0]=prototypeNetwork.getAllLayers().get(layer).size();
+        globalWorkSize[1]=numberOfCopies;
         
         clEnqueueNDRangeKernel(commandQueue.getCLCommandQueue(), kernel, 2, null, globalWorkSize, null, 0, null, null);
 	}
@@ -225,11 +225,14 @@ class GABPFeedForwards {
 		writeMemList(clThreshold,threshold,CL.CL_MEM_READ_WRITE);
 		writeMemList(clSynapse,synapse,CL.CL_MEM_READ_WRITE);
 		writeMemList(clError,error,CL.CL_MEM_READ_WRITE);
+		fillBuffers();
+		buffersCreated=true;
+	}
+	public void fillBuffers() {
 		clInputMasks = writeMem(inputMasks,CL.CL_MEM_READ_ONLY);
 		clLearningRate = writeMem(learningRate,CL.CL_MEM_READ_ONLY);
 		clInputTrainingData = writeMem(inputTrainingData,CL.CL_MEM_READ_ONLY);
 		clOutputTrainingData = writeMem(outputTrainingData,CL.CL_MEM_READ_ONLY);
-		buffersCreated=true;
 	}
 	public void readResults() {
 		readMemList(clActivation,activation);
@@ -290,8 +293,8 @@ class GABPFeedForwards {
 		
 		this.context = context;
 		this.commandQueue = commandQueue;
-		this.copies = inputMaskVectors.size();
-		this.prototype = prototype;
+		this.numberOfCopies = inputMaskVectors.size();
+		this.prototypeNetwork = prototype;
 		this.trainingSetSource = trainingData;
 		this.inputMaskVectors = inputMaskVectors; 
 		
@@ -301,12 +304,12 @@ class GABPFeedForwards {
 	
 	public void loadTrainingData() {
 		// TODO: figure out a good way to intelligently, dynamically page the data based on available resources 
-		int count = 0;
+		int totalDataPairCount = 0;
 		for( TrainingSetSource.Pair pair : trainingSetSource ) {
-			count++;
+			totalDataPairCount++;
 		}
-		inputTrainingData = new float[count*inputs];
-		outputTrainingData = new float[count*outputs];
+		inputTrainingData = new float[totalDataPairCount*inputCount];
+		outputTrainingData = new float[totalDataPairCount*outputCount];
 		int inputOffset = 0, outputOffset = 0;
 		for( TrainingSetSource.Pair pair : trainingSetSource ) {
 			for( Double d : pair.getInput().getData() )
@@ -316,31 +319,38 @@ class GABPFeedForwards {
 		}
 	}
 	
-	public void loadPrototype() {
+	public void setInputMasks(List<MathVector> masks) {
+		inputMaskVectors = masks;
 		int i = 0;
-		float[] temp = null;
-		
-		learningRate = new float[copies];
-		for(i=0;i<copies;i++)
-			learningRate[i]=0.02f;
-		i=0;
-		
-		inputs = prototype.getInputNeurons().size();
-		outputs = prototype.getOutputNeurons().size();
-		
-		globalWorkSize[1] = copies;
-		
-		List<List<Neuron>> neurons = prototype.getAllLayers();
-		int neuronsCount, synapsesCount;
-		Integer lastLayerNs = null;
-		
-		inputMasks = new float[neurons.get(0).size()*copies];
+		inputMasks = new float[prototypeNetwork.getInputNeurons().size()*numberOfCopies];
 		for(MathVector mv : inputMaskVectors) {
 			for(double d:mv.getData()) {
 				inputMasks[i] = (float)d;
 				i++;
 			}
-		}		
+		}
+	}
+	
+	public void loadPrototype() {
+		int i = 0;
+		float[] temp = null;
+		
+		// set the learning rate for each of the clones
+		learningRate = new float[numberOfCopies];
+		for(i=0;i<numberOfCopies;i++)
+			learningRate[i]=0.02f;
+		i=0;
+		
+		inputCount = prototypeNetwork.getInputNeurons().size();
+		outputCount = prototypeNetwork.getOutputNeurons().size();
+		
+		globalWorkSize[1] = numberOfCopies;
+		
+		List<List<Neuron>> neurons = prototypeNetwork.getAllLayers();
+		int neuronsCount, synapsesCount;
+		Integer lastLayerNs = null;
+		
+		setInputMasks(inputMaskVectors);		
 		
 		// iterate over each neuron in the layer
 		for( List<Neuron> layerNeurons : neurons ) {
@@ -348,27 +358,30 @@ class GABPFeedForwards {
 			// create a copy of the synapses for each layer
 			// for each network
 			if( lastLayerNs != null ) {
-				synapsesCount = lastLayerNs * layerNeurons.size() * copies;
+				synapsesCount = lastLayerNs * layerNeurons.size() * numberOfCopies;
 				temp = new float[synapsesCount];
 				i = 0;
 				// TODO: this is shit...come on now...fucking do this better.
-				for( int j=0; j<copies; j++ ) {
-					for( Neuron neuron : layerNeurons )
-						for( Synapse synapse : neuron.getInputSynapses() )
+				for( int j=0; j<numberOfCopies; j++ ) {
+					for( Neuron neuron : layerNeurons ) {
+						for( Synapse synapse : neuron.getInputSynapses() ) {
 							temp[i++] = (float)synapse.getWeight();
+						}
+					}
 				}
 				synapse.add( temp );
 			}
 			
-			neuronsCount = layerNeurons.size() * copies;
+			neuronsCount = layerNeurons.size() * numberOfCopies;
 			
 			// create a copy of the thresholds for each layer
 			// for each network
 			temp = new float[neuronsCount];
 			i=0;
-			for( int j=0; j<copies; j++ ) {
-				for( Neuron neuron : layerNeurons )
+			for( int j=0; j<numberOfCopies; j++ ) {
+				for( Neuron neuron : layerNeurons ) {
 					temp[i++] = (float)neuron.getThreshold();
+				}
 			}
 			threshold.add( temp );
 			

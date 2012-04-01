@@ -28,28 +28,29 @@ import com.jonschang.math.vector.*;
 import com.jonschang.opencl.*;
 
 public class GABPInputOptimizerTest {
+	
 	@Test public void testTraining() throws NetworkTrainingException {
 		
-		GABPInputOptimizer mbp = new GABPInputOptimizer();
+		GABPInputOptimizer inputOptimizer = new GABPInputOptimizer();
 		
-		List<MathVector> mvl = new ArrayList<MathVector>();
-		mvl.add( new VectorImpl( 1.0, 1.0, 1.0, 0.0, 1.0 ) );
-		mvl.add( new VectorImpl( 1.0, 1.0, 0.0, 0.0, 0.0 ) );
-		mvl.add( new VectorImpl( 1.0, 1.0, 0.0, 1.0, 0.0 ) );
-		mbp.setInputMasks(mvl);
+		List<MathVector> inputMasks = new ArrayList<MathVector>();
+		inputMasks.add( new VectorImpl( 1.0, 1.0, 1.0, 0.0, 1.0 ) );
+		inputMasks.add( new VectorImpl( 1.0, 1.0, 0.0, 0.0, 0.0 ) );
+		inputMasks.add( new VectorImpl( 1.0, 1.0, 0.0, 1.0, 0.0 ) );
+		inputOptimizer.setInputMasks(inputMasks);
 		
 		OCLContext context = OCLContext.create();
 		OCLCommandQueue queue = OCLCommandQueue.create(context);
-		mbp.setOCLContext(context);
-		mbp.setOCLCommandQueue(queue);
+		inputOptimizer.setOCLContext(context);
+		inputOptimizer.setOCLCommandQueue(queue);
 		
 		// create a TrainingSetSource with maybe 6 ValueSources
-		TrainingSetSource tss = createTrainingSetSource();
-		mbp.setTrainingSetSource(tss);
-		mbp.setPrototype(FeedForward.create( new SigmoidActivator(), 5, 3, 4, 2 ));
+		TrainingSetSource trainingSetSource = createTrainingSetSource();
+		inputOptimizer.setTrainingSetSource(trainingSetSource);
+		inputOptimizer.setPrototype(FeedForward.create( new SigmoidActivator(), 5, 3, 4, 2 ));
 		
 		// train
-		mbp.train();
+		inputOptimizer.train();
 		
 		// test
 	}
