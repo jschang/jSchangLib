@@ -20,6 +20,10 @@
 */
 package com.jonschang.investing.stocks;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import com.jonschang.investing.*;
 import com.jonschang.investing.stocks.model.*;
 import org.htmlparser.*;
@@ -31,58 +35,57 @@ import org.apache.log4j.*;
 
 public class YahooStockService extends StockService {
 
+	private static String STOCK_EXCHANGE_URL = "http://finance.yahoo.com/d/quotes.csv?s={SYMBOL}&f=nx";
+	
 	protected Stock pullStockFromWebService(Stock stock) throws ServiceException {
-		String url = "http://finance.yahoo.com/q?s="+stock.getSymbol(); 
+		 
+		String urlStr = STOCK_EXCHANGE_URL.replace("{SYMBOL}", stock.getSymbol());
 		try {
+			URL url = new URL(urlStr);
 			Logger.getLogger(this.getClass()).info("Attempting to pulling stock information from Yahoo! at url "+url);
-			Parser parser = new Parser(url);
-			NodeList nodes = parser.parse(new ExtractNameNodeFilter());
-			if( nodes!=null && nodes.size()>0 ) {
-				java.util.regex.Pattern p = java.util.regex.Pattern.compile("<div class=\\\"hd\\\"><div class=\\\"title\\\"><h2>([^(]*)\\(([^)]*)\\)</h2> <span class=\\\"rtq_exch\\\"><span class=\\\"rtq_dash\\\">-</span>([^\\s]*) </span>");
-				//java.util.regex.Pattern p = java.util.regex.Pattern.compile("<div class=\\\"title\\\"><h2>([^<]*)</h2><span>[(]([^<]*): ([^)]*)[)]</span></div>");
-				java.util.regex.Matcher m = p.matcher(nodes.toHtml());
-				if( m.matches() ) {
-					java.util.regex.MatchResult mr = m.toMatchResult();
-					stock.setCompanyName(mr.group(1));
-					stock.setSymbol(mr.group(2));
-					
-					String exchangeSymbol = mr.group(3);
-					
-					// if we couldn't find the stock under the symbol
-					if( stock.getStockExchange()!=null
-						&& stock.getStockExchange().getSymbol()!=null
-						&& stock.getStockExchange().getSymbol().compareTo(exchangeSymbol)!=0 )
-						throw new NotFoundException("the stock symbol requested \""+stock.getSymbol()+"\" was found under the exchange \""+exchangeSymbol+"\", not \""+stock.getStockExchange().getSymbol()+"\"");
+			String content = ((String)url.getContent()).replace("\"","");
+			if( content!=null ) {
+				String[] parts = content.split(",");
+				stock.setCompanyName(parts[0]);
 				
-					// if the exchange does not have a pkid, then attempt to use the StockExchangeService to discover it
-					StockExchange pulledExchange = (StockExchange)Investing
-						.instance()
-						.getExchangeServiceFactory()
-						.get(StockExchange.class)
-						.getExchange(exchangeSymbol);
-					if( pulledExchange == null )
-						throw new NotFoundException("the stock with symbol \""+stock.getSymbol()+"\" was found, but the exchange \""+exchangeSymbol+"\" was not.  do you need to add the exchange to StockExchangeService in exchange-service.xml?");
-					else {
-						//pulledExchange.getStocks().add(stock);
-						stock.setStockExchange(pulledExchange);
-					}
-					
-					// now we need to store the stock to the databased
-					Session session = Investing.instance().getSessionFactory().getCurrentSession();
-					session.beginTransaction();
-					session.saveOrUpdate(stock);
-					session.refresh(stock);
-					session.getTransaction().commit();
-				} else throw new NotFoundException("no stock information found in \""+nodes.toHtml()+"\" at url "+url);
-			} else throw new NotFoundException("no stock information nodes information found in "+url);
-			Logger.getLogger(YahooStockService.class).info(nodes.toHtml());
+				String exchangeSymbol = parts[1]; 
+				
+				// if we couldn't find the stock under the symbol
+				if( stock.getStockExchange()!=null
+					&& stock.getStockExchange().getSymbol()!=null
+					&& stock.getStockExchange().getSymbol().compareTo(exchangeSymbol)!=0 )
+					throw new NotFoundException("the stock symbol requested \""+stock.getSymbol()+"\" was found under the exchange \""+exchangeSymbol+"\", not \""+stock.getStockExchange().getSymbol()+"\"");
+			
+				// if the exchange does not have a pkid, then attempt to use the StockExchangeService to discover it
+				StockExchange pulledExchange = (StockExchange)Investing
+					.instance()
+					.getExchangeServiceFactory()
+					.get(StockExchange.class)
+					.getExchange(exchangeSymbol);
+				if( pulledExchange == null )
+					throw new NotFoundException("the stock with symbol \""+stock.getSymbol()+"\" was found, but the exchange \""+exchangeSymbol+"\" was not.  do you need to add the exchange to StockExchangeService in exchange-service.xml?");
+				else {
+					//pulledExchange.getStocks().add(stock);
+					stock.setStockExchange(pulledExchange);
+				}
+				
+				// now we need to store the stock to the databased
+				Session session = Investing.instance().getSessionFactory().getCurrentSession();
+				session.beginTransaction();
+				session.saveOrUpdate(stock);
+				session.refresh(stock);
+				session.getTransaction().commit();
+			} else throw new NotFoundException("no stock information found in \""+content+"\" at url "+url);
+			Logger.getLogger(YahooStockService.class).info(content);
 			
 			pullSectorAndIndustryFromYahoo(stock);
 			
 			return stock;
-		} catch( ParserException pe ) {
-			throw new ServiceException("Parser threw a ParserException looking for symbol "+stock.getSymbol()+" from Yahoo! at url "+url,pe);
-		}
+		} catch( MalformedURLException mue ) {
+			throw new ServiceException("Parser threw a MalformedURLException looking for symbol "+stock.getSymbol()+" from Yahoo! at url "+urlStr,mue);
+		} catch( IOException pe ) {
+			throw new ServiceException("Parser threw a IOException looking for symbol "+stock.getSymbol()+" from Yahoo! at url "+urlStr,pe);
+		} 
 	}
 	
 	private void pullSectorAndIndustryFromYahoo(Stock stock) throws ServiceException {
