@@ -21,7 +21,7 @@
 
 package com.jonschang.ai.network;
 
-public interface InputOptimizer<N extends Network> extends Runnable {
+public interface InputOptimizer<N extends Network> {
 	   void setPrototype(N prototype);
 	   N getPrototype();
 }

@@ -21,11 +21,14 @@
 package com.jonschang.investing.stocks;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import com.jonschang.investing.*;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.utils.FileUtils;
+
 import org.htmlparser.*;
 import org.htmlparser.nodes.*;
 import org.htmlparser.tags.*;
@@ -41,14 +44,25 @@ public class YahooStockService extends StockService {
 		 
 		String urlStr = STOCK_EXCHANGE_URL.replace("{SYMBOL}", stock.getSymbol());
 		try {
-			URL url = new URL(urlStr);
-			Logger.getLogger(this.getClass()).info("Attempting to pulling stock information from Yahoo! at url "+url);
-			String content = ((String)url.getContent()).replace("\"","");
+			String content=null;
+			if(stock.getSymbol().startsWith("^")) {
+				content="\""+stock.getSymbol()+"\",\"INDEX\"";
+			} else {
+				URL url = new URL(urlStr);
+				Logger.getLogger(this.getClass()).info("Attempting to pulling stock information from Yahoo! at url "+url);
+				content = FileUtils.readInputStream((InputStream)url.getContent());
+				if(content==null) {
+					throw new NotFoundException("no stock information found in \""+content+"\" at url "+url);
+				}
+			}
 			if( content!=null ) {
-				String[] parts = content.split(",");
-				stock.setCompanyName(parts[0]);
 				
-				String exchangeSymbol = parts[1]; 
+				String[] parts = content.trim().split("\",\"");
+				
+				String companyName = parts[0].replace("\"","");
+				String exchangeSymbol = parts[1].replace("\"","");
+				
+				stock.setCompanyName(companyName);
 				
 				// if we couldn't find the stock under the symbol
 				if( stock.getStockExchange()!=null
@@ -75,7 +89,7 @@ public class YahooStockService extends StockService {
 				session.saveOrUpdate(stock);
 				session.refresh(stock);
 				session.getTransaction().commit();
-			} else throw new NotFoundException("no stock information found in \""+content+"\" at url "+url);
+			}
 			Logger.getLogger(YahooStockService.class).info(content);
 			
 			pullSectorAndIndustryFromYahoo(stock);

@@ -62,6 +62,9 @@
 								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
 									<property name="symbol" value="NasdaqGM"/>
 								</bean>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="NasdaqNM"/>
+								</bean>
 							</list>
 						</property>
 					</bean>

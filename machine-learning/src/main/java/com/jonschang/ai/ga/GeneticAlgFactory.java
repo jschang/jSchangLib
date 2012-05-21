@@ -21,7 +21,6 @@
 
 package com.jonschang.ai.ga;
 
-import java.util.*;
 
 /**
  * An abstract factory for different concrete implementations 

@@ -24,6 +24,8 @@ package com.jonschang.utils;
 import java.io.*;
 
 public class FileUtils {
+	static private String NL = System.getProperty("line.separator");
+	
 	static public String readResourceFile(Class<?> clazz, String fileName) throws IOException {
 		return readInputStream(clazz.getResourceAsStream(fileName));
     }
@@ -31,14 +33,12 @@ public class FileUtils {
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         StringBuffer sb = new StringBuffer();
         String line = null;
-        while (true)
-        {
+        while (true) {
             line = br.readLine();
-            if (line == null)
-            {
+            if (line == null) {
                 break;
             }
-            sb.append(line).append("\n");
+            sb.append(line).append(NL);
         }
         return sb.toString();
 	}

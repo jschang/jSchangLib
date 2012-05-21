@@ -19,29 +19,40 @@
 ###############################
 */
 
-package com.jonschang.ai.network.feedforward;
+package com.jonschang.ai.network.feedforward.gaio;
 
-import org.apache.log4j.*;
-import org.jocl.cl_program;
+import java.util.List;
 
-import com.jonschang.ai.network.*;
-import com.jonschang.math.vector.*;
-import com.jonschang.opencl.*;
-import com.jonschang.utils.FileUtils;
+import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
+import com.jonschang.ai.ga.GenerationEvaluator;
+import com.jonschang.ai.ga.GeneticAlgException;
+import com.jonschang.ai.ga.GeneticAlgFactory;
+import com.jonschang.ai.network.feedforward.FeedForward;
+import com.jonschang.ai.network.AbstractNetworkTrainer;
+import com.jonschang.ai.network.HasIterations;
+import com.jonschang.ai.network.HasLearningRate;
+import com.jonschang.ai.network.HasMeanSquaredError;
+import com.jonschang.ai.network.InputOptimizer;
+import com.jonschang.ai.network.NetworkTrainer;
+import com.jonschang.ai.network.NetworkTrainingException;
+import com.jonschang.ai.network.TrainingSetSource;
+import com.jonschang.math.vector.MathVector;
+import com.jonschang.opencl.OCLCommandQueue;
+import com.jonschang.opencl.OCLContext;
+import com.jonschang.opencl.RequiresOpenCL;
 
 /**
  * A BackPropagation algorithm training multiple networks,
- * using the same TrainingSetSource
+ * using the same TrainingSetSource.
  * @author schang
  */
 public class GABPInputOptimizer extends AbstractNetworkTrainer<FeedForward> 
-	implements InputOptimizer<FeedForward>, NetworkTrainer<FeedForward>, HasIterations, HasMeanSquaredError, HasLearningRate, RequiresOpenCL {
+	implements InputOptimizer<FeedForward>, 
+		HasIterations, 
+		HasMeanSquaredError, 
+		HasLearningRate, 
+		RequiresOpenCL {
 	
 	private int numberOfIterations = 1000000;
 	private int currentIteration   = 0;
@@ -57,6 +68,99 @@ public class GABPInputOptimizer extends AbstractNetworkTrainer<FeedForward>
 	private List<MathVector> inputMasks = null;
 	
 	private GABPFeedForwards feedForwards = null;
+	
+	public void resetTrainingStatus() {
+		this.currentIteration = 0;
+		this.currentMSE = 100000;
+	}
+	
+	@Override protected void onBegin() throws NetworkTrainingException {
+		feedForwards = new GABPFeedForwards(context,commandQueue,prototype,inputMasks,trainingData);
+		feedForwards.createBuffers();
+		feedForwards.createProgram();
+	}
+	
+	public void setInputMasks(List<MathVector> inputMasks) {
+		
+	}
+
+	@Override public boolean train() throws NetworkTrainingException {
+		try {
+			return super.train();
+		} finally {
+			feedForwards.releaseBuffers();
+			feedForwards = null;
+		}		
+	}
+	
+	public boolean trainingIteration()
+	{
+		double newMSE=100000;
+		this.lastMaxError=0;
+		
+		// create a set of input masks using the provided algorithm
+		
+		// assign the input masks to the GABPFeedForwards instance
+		
+		// train all the network clones on the available training data
+		int dataRow = 0;
+		for( TrainingSetSource.Pair entry: this.trainingData )
+		{
+			MathVector inputVec = entry.getInput();
+			MathVector outputVec = entry.getOutput();
+			
+			// perform training updates
+			feedForwards.computeInputLayer(dataRow);
+			for( int i=1; i<prototype.getAllLayers().size(); i++ ) {
+				feedForwards.computeNextLayer(i-1,i);
+			}
+			feedForwards.computeOutputError(dataRow);
+			for( int i=prototype.getAllLayers().size()-1; i>=1; i-- ) {
+				feedForwards.computePrevLayerError(i-1,i);
+			}
+			for( int i=prototype.getAllLayers().size()-1; i>0; i-- ) {
+				feedForwards.updateSynapses(i);
+			}
+			for( int i=prototype.getAllLayers().size()-1; i>=0; i-- ) {
+				feedForwards.updateThresholds(i);
+			}
+			
+			feedForwards.readResults();
+			
+			List<float[]> allLayerActivations = feedForwards.getActivation();
+			float[] outputActivations = allLayerActivations.get(allLayerActivations.size()-1);
+			
+			// determine which network has the greatest error
+			float thisMaxError = 0.0f;
+			int numNets = feedForwards.getCopies();
+			for( int n=0; n<numNets; n+=outputVec.size() ) {
+				for( int i=0; i<outputVec.size(); i++ ) {
+					double thisActivation = outputActivations[n*outputVec.size()+i];
+					float thisError = (float) Math.abs( outputVec.getData().get(i) - thisActivation );
+					thisMaxError = thisMaxError < thisError ? thisError : thisMaxError;
+				}
+			}
+			
+			this.lastMaxError=this.lastMaxError<thisMaxError?thisMaxError:this.lastMaxError;
+			
+			newMSE += Math.pow(thisMaxError, 2);
+			dataRow++;
+		}
+		
+		this.currentMSE = newMSE / dataRow;
+		
+		// save the current MSE
+		this.currentIteration++;
+		
+		Logger.getLogger(this.getClass()).info("iteration: "+currentIteration+", MSE: "+currentMSE+", max error: "+this.lastMaxError);
+		
+		// TODO: adjust this for multiple networks
+		return (this.currentMSE>this.desiredMSE && this.currentIteration<this.numberOfIterations)?true:false;
+	}
+	
+	/*
+	 * ACCESSORS
+	 */
 	
 	@Override public void setOCLCommandQueue(OCLCommandQueue queue) {
 		this.commandQueue = queue;
@@ -96,23 +200,11 @@ public class GABPInputOptimizer extends AbstractNetworkTrainer<FeedForward>
 		return prototype;
 	}
 	
-	public void setInputMasks(List<MathVector> inputMasks) {
-		this.inputMasks = inputMasks;
-	}
-	public List<MathVector> getInputMasks() {
-		return inputMasks;
-	}
-	
 	public void setLearningRate(double learningRate) { 
 		this.learningRate = learningRate; 
 	}	
 	public double getLearningRate(){
 		return this.learningRate; 
-	}
-
-	public void resetTrainingStatus() {
-		this.currentIteration = 0;
-		this.currentMSE = 100000;
 	}
 
 	@Override public int getTrainingIterations() {
@@ -121,85 +213,4 @@ public class GABPInputOptimizer extends AbstractNetworkTrainer<FeedForward>
 	@Override public void setTrainingIterations(int numberOfIterations) {
 		this.numberOfIterations = numberOfIterations;
 	}
-	
-	@Override protected void onBegin() throws NetworkTrainingException {
-		feedForwards = new GABPFeedForwards(context,commandQueue,prototype,inputMasks,trainingData);
-		feedForwards.createBuffers();
-		feedForwards.createProgram();
-	}
-	
-	@Override public void run() {
-		try {
-			this.train();
-		} catch( NetworkTrainingException nte ) {
-			throw new RuntimeException(nte);
-		}
-	}
-
-	@Override public boolean train() throws NetworkTrainingException {
-		try {
-			return super.train();
-		} finally {
-			feedForwards.releaseBuffers();
-			feedForwards = null;
-		}		
-	}
-	
-	public boolean trainingIteration()
-	{
-		double newMSE=100000;
-		double error=0;
-		this.lastMaxError=0;
-		
-		// create a set of input masks using the provided algorithm
-		
-		// assign the input masks to the GABPFeedForwards instance
-		
-		// train all the network clones on the available training data
-		int dataRow = 0;
-		for( TrainingSetSource.Pair entry: this.trainingData )
-		{
-			MathVector inputVec = entry.getInput();
-			MathVector outputVec = entry.getOutput();
-			
-			// perform training updates
-			feedForwards.computeInputLayer(dataRow);
-			for( int i=1; i<prototype.getAllLayers().size(); i++ ) {
-				feedForwards.computeNextLayer(i-1,i);
-			}
-			feedForwards.computeOutputError(dataRow);
-			for( int i=prototype.getAllLayers().size()-1; i>=1; i-- ) {
-				feedForwards.computePrevLayerError(i-1,i);
-			}
-			for( int i=prototype.getAllLayers().size()-1; i>0; i-- ) {
-				feedForwards.updateSynapses(i);
-			}
-			for( int i=prototype.getAllLayers().size()-1; i>=0; i-- ) {
-				feedForwards.updateThresholds(i);
-			}
-			
-			feedForwards.readResults();
-			
-			float[] errors = feedForwards.getError().get(feedForwards.getError().size()-1);
-			float thisMaxError = 0.0f;
-			for(float thisError : errors) {
-				thisError = Math.abs(thisError);
-				thisMaxError = thisMaxError < thisError ? thisError : thisMaxError;
-			}			
-			this.lastMaxError=this.lastMaxError<thisMaxError?thisMaxError:this.lastMaxError;
-			
-			dataRow++;
-		}
-		
-		this.currentMSE = newMSE / dataRow;
-		
-		// save the current MSE
-		this.currentIteration++;
-		
-		Logger.getLogger(this.getClass()).info("iteration: "+currentIteration+", MSE: "+currentMSE+", max error: "+this.lastMaxError);
-		
-		// TODO: adjust this for multiple networks
-		return (this.currentMSE>this.desiredMSE && this.currentIteration<this.numberOfIterations)?true:false;
-	}
-
 }

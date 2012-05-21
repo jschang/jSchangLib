@@ -19,7 +19,7 @@
 ###############################
 */
 
-package com.jonschang.ai.network.feedforward;
+package com.jonschang.ai.network.feedforward.gaio;
 
 import static org.jocl.CL.CL_TRUE;
 import static org.jocl.CL.clEnqueueNDRangeKernel;
@@ -33,6 +33,7 @@ import java.util.*;
 
 import com.jonschang.math.vector.*;
 import com.jonschang.ai.network.*;
+import com.jonschang.ai.network.feedforward.FeedForward;
 import com.jonschang.opencl.*;
 import com.jonschang.utils.FileUtils;
 

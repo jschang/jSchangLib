@@ -76,6 +76,9 @@
 				<entry key="NasdaqGS">
 					<ref bean="NASDAQExchangeContext"/>
 				</entry>
+				<entry key="NasdaqNM">
+					<ref bean="NASDAQExchangeContext"/>
+				</entry>
 				<entry key="NYSE">
 					<ref bean="NYSEExchangeContext"/>
 				</entry>

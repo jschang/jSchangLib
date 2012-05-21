@@ -24,7 +24,9 @@ import java.util.*;
 import com.jonschang.investing.model.*;
 import javax.persistence.*;
 
-@Entity @Table(name="stock")
+@Entity @Table(name="stock",uniqueConstraints={
+	@UniqueConstraint(columnNames={"symbol","",""})	
+})
 @org.hibernate.annotations.Table(appliesTo = "stock", 
 	indexes = { 
 		@org.hibernate.annotations.Index(name = "idx_symbol", columnNames = { "symbol" }) 
@@ -52,7 +54,7 @@ public class Stock implements Quotable<StockQuote,StockExchange>
 	/**
 	 * @return the stock symbol
 	 */
-	@Column(name="symbol")
+	@Column(name="symbol",unique=true)
 	public String getSymbol()
 		{ return m_symbol; }
 	public void setSymbol(String sym)

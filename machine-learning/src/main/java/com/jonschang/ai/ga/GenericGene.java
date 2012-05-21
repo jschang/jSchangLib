@@ -21,7 +21,6 @@
 
 package com.jonschang.ai.ga;
 
-import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 
