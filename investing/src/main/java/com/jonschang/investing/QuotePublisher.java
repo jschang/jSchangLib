@@ -47,7 +47,7 @@ import com.jonschang.utils.*;
  * @param <S>
  */
 public interface QuotePublisher<Q extends Quote<S>,S extends Quotable> 
-	extends HasDatePublisher, HasQuoteAdjusters<Q,S> {
+		extends HasDatePublisher, HasQuoteAdjusters<Q,S> {
 	
 	/**
 	 * Adds the QuoteValueSource to this QuotePublisher,

@@ -28,8 +28,7 @@ import java.util.*;
  * a class for minute-by-minute and hour-by-hour stock quotes
  * @author schang
  */
-@Entity @Table(name="stock_quote",
-	uniqueConstraints={
+@Entity @Table(name="stock_quote",uniqueConstraints={
 		@UniqueConstraint(columnNames={"stock_id", "intrvl", "date"})
 	})
 @org.hibernate.annotations.Table(appliesTo = "stock_quote", 

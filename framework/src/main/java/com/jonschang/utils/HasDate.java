@@ -24,6 +24,10 @@ package com.jonschang.utils;
 import java.util.Date;
 
 public interface HasDate {
+	/**
+	 * Called by the DatePublisher
+	 * @param date
+	 */
 	void setDate(Date date);
 	Date getDate();
 }

@@ -25,7 +25,7 @@ import com.jonschang.investing.model.*;
 import javax.persistence.*;
 
 @Entity @Table(name="stock",uniqueConstraints={
-	@UniqueConstraint(columnNames={"symbol","",""})	
+	@UniqueConstraint(columnNames={"symbol"})	
 })
 @org.hibernate.annotations.Table(appliesTo = "stock", 
 	indexes = { 

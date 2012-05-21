@@ -21,6 +21,9 @@
 package com.jonschang.investing.valuesource;
 
 import java.text.*;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.*;
 import org.apache.log4j.*;
 import com.jonschang.investing.*;
@@ -48,20 +51,26 @@ public class AggregateQuoteValueSourceListTest {
 			
 			AggregateQuoteValueSourceList aqvsl = new AggregateQuoteValueSourceList();
 			
+			DatePublisher datePub = new GenericDatePublisher();
+			datePub.setDate(new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("1/15/2008 16:00"));
+			
 			GenericQuotePublisher<StockQuote,Stock> pubStock = new GenericQuotePublisher<StockQuote,Stock>();  
 			pubStock.setTimeInterval(TimeInterval.DAY);
 			pubStock.setQuoteClass(StockQuote.class);
 			pubStock.setQuotable( ((StockService)Investing.instance().getQuotableServiceFactory().get(Stock.class)).get("MSFT") );
+			datePub.subscribe(pubStock);
 			
 			GenericQuotePublisher<StockQuote,Stock> pubIndex = new GenericQuotePublisher<StockQuote,Stock>();  
 			pubIndex.setTimeInterval(TimeInterval.DAY);
 			pubIndex.setQuoteClass(StockQuote.class);
 			pubIndex.setQuotable( ((StockService)Investing.instance().getQuotableServiceFactory().get(Stock.class)).get("^DJI") );
+			datePub.subscribe(pubIndex);
 			
 			QuoteValueSourceList<StockQuote,Stock> qvsl = new QuoteValueSourceList();
 			SingleQuoteValueSource<StockQuote,Stock> qvs = new SingleQuoteValueSource();
 			qvs.setReturnType(Quote.CLOSE);
 			pubStock.subscribe(qvs);
+			datePub.subscribe(qvsl);
 			qvsl.add(qvs);
 			aqvsl.add(qvsl);
 			
@@ -69,12 +78,17 @@ public class AggregateQuoteValueSourceListTest {
 			qvs = new SingleQuoteValueSource();
 			qvs.setReturnType(Quote.CLOSE);
 			pubIndex.subscribe(qvs);
+			datePub.subscribe(qvsl);
 			qvsl.add(qvs);
 			aqvsl.add(qvsl);
 			
-			aqvsl.setDate( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("1/15/2008 16:00") );
-			Assert.assertTrue( "[34.0, 12501.099609375]".compareTo(aqvsl.getVector().getData().toString())==0 );
-			aqvsl.setDate( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("1/19/2008 16:00") );
+			datePub.setDate( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("1/15/2008 16:00") );
+			datePub.updateHasDates();
+			List<Double> data = aqvsl.getVector().getData();
+			Assert.assertArrayEquals(new Integer[]{34,12501} , new Integer[]{((Double)data.get(0)).intValue(),((Double)data.get(1)).intValue()});
+			
+			datePub.setDate( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("1/19/2008 16:00") );
+			datePub.updateHasDates();
 			Assert.assertNull( aqvsl.getVector() );
 			
 		} catch( Exception e ) {

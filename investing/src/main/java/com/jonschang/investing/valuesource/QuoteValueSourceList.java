@@ -69,7 +69,8 @@ public class QuoteValueSourceList<Q extends Quote<S>, S extends Quotable>
 	
 	/**
 	 * Set the QuotePublisher for QuoteValueSource's in this List
-	 * This is a convenience method.
+	 * This is a convenience method.  Don't call it if the QuoteValueSources
+	 * subscribe to different QuotePublishers.
 	 * 
 	 * @param publisher
 	 */
@@ -117,12 +118,16 @@ public class QuoteValueSourceList<Q extends Quote<S>, S extends Quotable>
 			publisher.unsubscribe(valueSource);
 	}
 	
+	/**
+	 * Date to match
+	 */
 	public void setDate(Date cal) {
 		this.date = cal;
 	}
 	public Date getDate() {
 		return this.date;
 	}
+	
 	public void setDatePublisher(DatePublisher dp) {
 		this.datePublisher = dp;
 	}

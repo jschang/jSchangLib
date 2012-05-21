@@ -37,7 +37,7 @@ import com.jonschang.utils.*;
  * @param <S>
  */
 public class GenericQuotePublisher<Q extends Quote<S>, S extends Quotable> 
-	implements QuotePublisher<Q, S> {
+		implements QuotePublisher<Q, S> {
 	protected Collection<HasQuotes<Q,S>> hasQuotes = new ArrayList<HasQuotes<Q,S>>();
 	protected S quotable = null;
 	protected Class<?> quoteClass = com.jonschang.investing.model.Quote.class;
@@ -75,12 +75,7 @@ public class GenericQuotePublisher<Q extends Quote<S>, S extends Quotable>
 		this.quotable = quotable; 
 		lastDate=null;
 	}
-	public void setDate(Date date) {
-		this.date = date; 
-	}
-	public Date getDate() {
-		return this.date; 
-	}
+
 	@Override
 	public void subscribe(HasQuotes<Q,S> qvs) {
 		if( !hasQuotes.contains(qvs) ) {
@@ -151,5 +146,14 @@ public class GenericQuotePublisher<Q extends Quote<S>, S extends Quotable>
 	@Override
 	public void setQuoteAdjusters(List<QuoteAdjuster<Q,S>> adjusters) {
 		this.quoteAdjusters = adjusters;
+	}
+	
+	@Override
+	public void setDate(Date date) {
+		this.date=date;
+	}
+	@Override
+	public Date getDate() {
+		return this.date;
 	}
 }

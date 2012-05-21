@@ -23,7 +23,7 @@ package com.jonschang.utils;
 
 import java.util.*;
 
-public interface DatePublisher {
+public interface DatePublisher extends HasDate {
 	void subscribe(HasDatePublisher hasDate);
 	void unsubscribe(HasDatePublisher hasDate);
 	void updateHasDates();
