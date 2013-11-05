@@ -81,15 +81,17 @@ public class GABPInputOptimizer extends AbstractNetworkTrainer<FeedForward>
 	}
 	
 	public void setInputMasks(List<MathVector> inputMasks) {
-		
+		this.inputMasks = inputMasks;
 	}
 
 	@Override public boolean train() throws NetworkTrainingException {
 		try {
 			return super.train();
 		} finally {
-			feedForwards.releaseBuffers();
-			feedForwards = null;
+			if(feedForwards!=null) {
+				feedForwards.releaseBuffers();
+				feedForwards = null;
+			}
 		}		
 	}
 	

@@ -221,19 +221,19 @@ class GABPFeedForwards {
 	public void createBuffers() {
 		if( buffersCreated )
 			return;
-		writeMemList(clActivation,activation,CL.CL_MEM_READ_WRITE);
-		writeMemList(clInput,input,CL.CL_MEM_READ_WRITE);
-		writeMemList(clThreshold,threshold,CL.CL_MEM_READ_WRITE);
-		writeMemList(clSynapse,synapse,CL.CL_MEM_READ_WRITE);
-		writeMemList(clError,error,CL.CL_MEM_READ_WRITE);
+		writeMemList(clActivation,activation,CL.CL_MEM_READ_WRITE|CL.CL_MEM_COPY_HOST_PTR);
+		writeMemList(clInput,input,CL.CL_MEM_READ_WRITE|CL.CL_MEM_COPY_HOST_PTR);
+		writeMemList(clThreshold,threshold,CL.CL_MEM_READ_WRITE|CL.CL_MEM_COPY_HOST_PTR);
+		writeMemList(clSynapse,synapse,CL.CL_MEM_READ_WRITE|CL.CL_MEM_COPY_HOST_PTR);
+		writeMemList(clError,error,CL.CL_MEM_READ_WRITE|CL.CL_MEM_COPY_HOST_PTR);
 		fillBuffers();
 		buffersCreated=true;
 	}
 	public void fillBuffers() {
-		clInputMasks = writeMem(inputMasks,CL.CL_MEM_READ_ONLY);
-		clLearningRate = writeMem(learningRate,CL.CL_MEM_READ_ONLY);
-		clInputTrainingData = writeMem(inputTrainingData,CL.CL_MEM_READ_ONLY);
-		clOutputTrainingData = writeMem(outputTrainingData,CL.CL_MEM_READ_ONLY);
+		clInputMasks = writeMem(inputMasks,CL.CL_MEM_READ_ONLY|CL.CL_MEM_COPY_HOST_PTR);
+		clLearningRate = writeMem(learningRate,CL.CL_MEM_READ_ONLY|CL.CL_MEM_COPY_HOST_PTR);
+		clInputTrainingData = writeMem(inputTrainingData,CL.CL_MEM_READ_ONLY|CL.CL_MEM_COPY_HOST_PTR);
+		clOutputTrainingData = writeMem(outputTrainingData,CL.CL_MEM_READ_ONLY|CL.CL_MEM_COPY_HOST_PTR);
 	}
 	public void readResults() {
 		readMemList(clActivation,activation);
