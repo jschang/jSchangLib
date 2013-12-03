@@ -30,7 +30,18 @@ import com.jonschang.investing.stocks.model.*;
 import com.jonschang.investing.valuesource.QuoteValueSource;
 import com.jonschang.investing.valuesource.TooFewQuotesException;
 
-public class PrefetchQuotePublisher<Q extends Quote<S>, S extends Quotable> extends GenericQuotePublisher<Q,S> {
+/**
+ * So that the entire date range of quotes can be cached in memory,
+ * when running simulations.
+ * 
+ * @author schang
+ *
+ * @param <Q>
+ * @param <S>
+ */
+public class PrefetchQuotePublisher<Q extends Quote<S>, S extends Quotable> 
+		extends GenericQuotePublisher<Q,S> {
+	
 	protected DateRange dateRange;
 	protected List<Q> quotes = null;
 	protected Map<Date,Integer> dateToIndexMap = null;

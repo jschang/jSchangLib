@@ -23,6 +23,7 @@ package com.jonschang.investing.stocks.trading;
 import java.util.*;
 
 import org.junit.*;
+
 import java.text.*;
 
 import com.jonschang.investing.*;
@@ -42,18 +43,16 @@ public class NetworkTradingAgentTest {
 		datePublisher.setDate( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("10/05/2009 16:00") );
 		
 		// add all our stuff to the agent
-		NetworkBuilder builder = new NetworkBuilder_0_0_1a(datePublisher);
+		NetworkBuilder_0_0_1a builder = new NetworkBuilder_0_0_1a(datePublisher);
 		builder.setRunEnd( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("10/05/2009 16:00") );
 		builder.setTrainingEnd( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("10/05/2008 16:00") );
 		builder.setTrainingStart( new SimpleDateFormat("MM/dd/yyyy HH:mm").parse("10/05/2006 16:00") );
 		SingleNetworkTrainer<FeedForward> trainer = builder.getTrainer();
 		
-		List<Stock> quotables = new ArrayList<Stock>();
-		quotables.add( (Stock)Investing.instance().getQuotableServiceFactory().get(Stock.class).get("MSFT") );
-		builder.getQuoteVSTrainingSetSource().setQuotables(quotables);
-		builder.getQuoteVSTrainingSetSource().setQuotePublishersQuotable(
-			(Stock)Investing.instance().getQuotableServiceFactory().get(Stock.class).get("MSFT"));
-		
+		for(QuotePublisher pub : builder.getPublishers()) {
+			pub.setQuotable((Stock)Investing.instance().getQuotableServiceFactory().get(Stock.class).get("MSFT"));
+		}
+
 		NetworkTradingAgent agent = new NetworkTradingAgent();
 		
 		agent.setNetworkTrainer(trainer);

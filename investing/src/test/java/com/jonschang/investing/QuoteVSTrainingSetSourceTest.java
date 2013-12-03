@@ -22,11 +22,13 @@ package com.jonschang.investing;
 
 import java.text.*;
 import java.util.*;
+
 import org.junit.*;
 import org.apache.log4j.*;
 
 import com.jonschang.ai.network.*;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockService;
 import com.jonschang.investing.stocks.*;
 import com.jonschang.investing.valuesource.*;
 import com.jonschang.investing.*;

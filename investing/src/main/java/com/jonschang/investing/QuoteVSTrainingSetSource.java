@@ -57,25 +57,17 @@ public class QuoteVSTrainingSetSource<Q extends Quote<S>, S extends Quotable>
 	private DateRange dateRange;
 	private TimeInterval quotePeriod;
 	
-	private List<S> quotables = new ArrayList<S>();	
-	public void setQuotables(List<S> quotables) {
-		this.quotables = quotables;
-	}
-	public List<S> getQuotables() {
-		return quotables;
-	}
-	
 	private List<QuotePublisher<Q,S>> quotablesPublishers = new ArrayList<QuotePublisher<Q,S>>();
+	
+	/**
+	 * 
+	 * @param pubs
+	 */
 	public void setQuotePublishersToUpdate(List<QuotePublisher<Q,S>> pubs) {
 		this.quotablesPublishers = pubs;
 	}
 	public List<QuotePublisher<Q,S>> getQuotePublishersToUpdate() {
 		return quotablesPublishers;
-	}
-	public void setQuotePublishersQuotable(S currentQuotable) {
-		for( QuotePublisher<Q,S> pub : quotablesPublishers ) {
-			pub.setQuotable( currentQuotable );
-		}
 	}
 	
 	public void setDatePublisher(DatePublisher dp) {
@@ -91,6 +83,7 @@ public class QuoteVSTrainingSetSource<Q extends Quote<S>, S extends Quotable>
 	public TimeInterval getQuoteInterval() {
 		return this.quotePeriod;
 	}
+	
 	public void setInterval(TimeInterval interval) {
 		this.setQuoteInterval(interval);
 	}
@@ -137,18 +130,13 @@ public class QuoteVSTrainingSetSource<Q extends Quote<S>, S extends Quotable>
 	private class QuoteVSTrainingSetIterator implements TrainingSetSource.Iterator {
 
 		private QuoteVSTrainingSetPair nextPair;
+		
 		private Date currentDate;
-		private java.util.Iterator<QuotePublisher<Q,S>> pubIter
-			= quotablesPublishers.iterator();
-		private java.util.Iterator<S> quotablesIter
-			= quotables.iterator();
-		private S currentQuotable = null;
+		
+		private java.util.Iterator<QuotePublisher<Q,S>> pubIter = quotablesPublishers.iterator();
 		
 		QuoteVSTrainingSetIterator() throws NetworkException {
 			resetDate();
-			if( quotablesIter.hasNext() ) {
-				updateCurrentQuotable();
-			} else throw new NetworkException("QuoteVSTrainingSetSource must be primed with Quotables to pull training data for");
 		}	
 		
 		public boolean hasNext() {		
@@ -188,13 +176,19 @@ public class QuoteVSTrainingSetSource<Q extends Quote<S>, S extends Quotable>
 		 * @return
 		 * @throws Exception
 		 */
-		private QuoteVSTrainingSetPair pullNext() throws Exception {			
+		private QuoteVSTrainingSetPair pullNext() throws Exception {
+			
 			MathVector input = null;
 			MathVector output = null;
+			
 			while( ! currentDate.after(dateRange.getEnd()) ) {
 				
 				datePublisher.setDate(currentDate);
 				datePublisher.updateHasDates();
+				
+				for(QuotePublisher pub : quotablesPublishers) {
+					pub.updateQuotes();
+				}
 				
 				// build an output vector by evaluating each quote list via the output quotevaluesource's
 				input = inputSources.getVector();
@@ -220,22 +214,12 @@ public class QuoteVSTrainingSetSource<Q extends Quote<S>, S extends Quotable>
 				if( output!=null && input!=null )
 					break;
 			}
+			
 			if( output==null || input==null ) {
-				if( !quotablesIter.hasNext() )
-					return null;
-				else {
-					updateCurrentQuotable();
-					return pullNext();
-				}
+				return null;
 			}
+			
 			return new QuoteVSTrainingSetPair(input,output);
-		}
-		
-		private void updateCurrentQuotable() {
-			currentQuotable = quotablesIter.next();
-			Logger.getLogger(this.getClass()).trace("switching to "+currentQuotable.getSymbol());
-			setQuotePublishersQuotable(currentQuotable);
-			resetDate();
 		}
 		
 		private void resetDate() {

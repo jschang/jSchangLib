@@ -23,6 +23,10 @@ package com.jonschang.investing.stocks;
 import org.springframework.core.io.*;
 import com.jonschang.ai.ga.*;
 
+/**
+ * Currently abandoned, but originally intended to be a command-line utility.
+ * @author schang
+ */
 public class NetworkInputOptimizer {
 	public static void main(String[] args) {
 		SpringGeneticAlgFactory sgaf = new SpringGeneticAlgFactory();

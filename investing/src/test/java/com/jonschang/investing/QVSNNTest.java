@@ -21,12 +21,17 @@
 package com.jonschang.investing;
 
 import java.text.*;
+
 import org.junit.*;
+
 import java.util.*;
+
 import org.apache.log4j.*;
+
 import com.jonschang.ai.network.feedforward.*;
 import com.jonschang.investing.stocks.*;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockService;
 import com.jonschang.investing.valuesource.*;
 import com.jonschang.utils.*;
 import com.jonschang.math.vector.*;
@@ -54,11 +59,15 @@ public class QVSNNTest {
 			trainer.setDesiredMSE(0.002);
 			
 			StockService stockService = (StockService)Investing.instance().getQuotableServiceFactory().get(Stock.class);
-			builder.getQuoteVSTrainingSetSource().getQuotables().add(stockService.get("MDR"));
+			for(QuotePublisher pub : builder.getPublishers()) {
+				pub.setQuotable(stockService.get("MDR"));
+			}
 			trainer.train();
 			
 			Logger.getLogger(this.getClass()).info("currentMSE = "+trainer.getCurrentMSE()+", desiredMSE = "+trainer.getDesiredMSE());
-			builder.getQuoteVSTrainingSetSource().setQuotePublishersQuotable(stockService.get("MDR"));
+			for(QuotePublisher pub : builder.getPublishers()) {
+				pub.setQuotable(stockService.get("MDR"));
+			}
 			Date date = (Date)trainingEnd.clone();
 			datePublisher.setDate(date);
 			MathVector output;

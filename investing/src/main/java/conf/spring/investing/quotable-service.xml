@@ -23,7 +23,7 @@
 -->	
 <beans>
 
-	<bean id="YahooStockService" class="com.jonschang.investing.stocks.YahooStockService">
+	<bean id="YahooStockService" class="com.jonschang.investing.stocks.service.YahooStockService">
 	</bean>
 	
 	<bean id="QuotableServiceFactory" class="com.jonschang.investing.QuotableServiceFactory">

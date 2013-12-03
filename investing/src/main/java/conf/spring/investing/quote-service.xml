@@ -26,7 +26,7 @@
 	<bean 
 		id="ReutersFinancialStatementService"
 		scope="singleton"
-		class="com.jonschang.investing.stocks.ReutersFinancialStatementService">
+		class="com.jonschang.investing.stocks.service.ReutersFinancialStatementService">
 		<property name="serviceUrl" 
 			value="http://www.reuters.com/finance/stocks/incomeStatement?stmtType={STATEMENT_TYPE}&amp;perType={INTERVAL_TYPE}&amp;symbol={STOCK_SYMBOL}.{EXCHANGE_SYMBOL}"/>
 		<property name="intervalType" value="Annual"/>
@@ -65,7 +65,7 @@
 
 	<bean id="YahooHistoricalStockQuoteService"
 		scope="singleton"
-		class="com.jonschang.investing.stocks.YahooHistoricalStockQuoteService"/>
+		class="com.jonschang.investing.stocks.service.YahooHistoricalStockQuoteService"/>
 
 	<bean id="QuoteServiceFactory" class="com.jonschang.investing.QuoteServiceFactory">
 		<property name="quoteServices">

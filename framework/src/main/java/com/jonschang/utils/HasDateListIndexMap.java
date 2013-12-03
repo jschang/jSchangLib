@@ -23,12 +23,20 @@ package com.jonschang.utils;
 
 import java.util.*;
 
+/**
+ * So that Quotes of a different interval can be included in the same 
+ * @author schang
+ *
+ */
 public class HasDateListIndexMap extends HashMap<Date,Integer> {
+	
 	private List<? extends HasDate> haveDates;
+	
 	public HasDateListIndexMap(List<? extends HasDate> haveDates) {
 		this.haveDates = haveDates;
 		reindex();
 	}
+	
 	public void reindex() {
 		this.clear();
 		Integer i =0;

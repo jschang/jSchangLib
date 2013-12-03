@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 
 import com.jonschang.investing.trading.*;
 import com.jonschang.investing.*;
-import com.jonschang.investing.stocks.StockQuoteService;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockQuoteService;
 import com.jonschang.investing.stocks.*;
 import com.jonschang.investing.*;
 import com.jonschang.utils.*;

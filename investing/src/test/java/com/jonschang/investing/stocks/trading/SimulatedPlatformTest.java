@@ -38,6 +38,17 @@ public class SimulatedPlatformTest {
 	private StockTradingAccount account=null;
 	private Stock quotable=null;
 	private TimeInterval interval=TimeInterval.DAY;
+
+	@Before public void init() throws Exception {
+		platform = new SimulatedPlatform();
+		
+		account = new StockTradingAccount();
+		account.setBuyingPower(10000);
+		
+		Date date = DateFormat.getDateInstance().parse("March 7, 2007 16:00:00");
+		platform.setDate(date);
+		platform.setInterval(interval);
+	}
 	
 	@Test public void testMarketBuySell() {
 		try {
@@ -281,17 +292,6 @@ public class SimulatedPlatformTest {
 		} catch( Exception e ) {
 			e.printStackTrace();
 		}
-	}
-	
-	@Before public void init() throws Exception {
-		platform = new SimulatedPlatform();
-		
-		account = new StockTradingAccount();
-		account.setBuyingPower(10000);
-		
-		Date date = DateFormat.getDateInstance().parse("March 7, 2007 16:00:00");
-		platform.setDate(date);
-		platform.setInterval(interval);
 	}
 	
 	public StockPosition getPosition(String stock) throws Exception {

@@ -21,12 +21,14 @@
 package com.jonschang.investing.stocks.utils;
 
 import org.apache.log4j.*;
+
 import com.jonschang.investing.*;
-import com.jonschang.investing.stocks.StockQuoteService;
-import com.jonschang.investing.stocks.StockService;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockQuoteService;
+import com.jonschang.investing.stocks.service.StockService;
 import com.jonschang.investing.stocks.*;
 import com.jonschang.utils.*;
+
 import java.text.*;
 import java.util.*;
 

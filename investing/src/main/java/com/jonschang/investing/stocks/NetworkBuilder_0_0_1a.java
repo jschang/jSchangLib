@@ -27,6 +27,7 @@ import com.jonschang.ai.network.feedforward.*;
 import com.jonschang.investing.*;
 import com.jonschang.investing.stocks.*;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockService;
 import com.jonschang.investing.valuesource.*;
 import com.jonschang.utils.*;
 import com.jonschang.utils.valuesource.*;

@@ -22,11 +22,15 @@ package com.jonschang.investing.stocks;
 
 import java.util.*;
 import java.text.*;
+
 import org.junit.*;
+
 import com.jonschang.investing.*;
 import com.jonschang.investing.stocks.*;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockService;
 import com.jonschang.utils.*;
+
 import org.apache.log4j.*;
 
 public class YahooHistoricalStockQuoteServiceTest

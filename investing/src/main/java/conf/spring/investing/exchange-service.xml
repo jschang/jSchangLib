@@ -23,10 +23,10 @@
 -->	
 <beans>
 
-	<bean id="YahooStockExchangeService" class="com.jonschang.investing.stocks.YahooStockExchangeService">
+	<bean id="YahooStockExchangeService" class="com.jonschang.investing.stocks.service.YahooStockExchangeService">
 	</bean>
 	
-	<bean id="StockExchangeService" class="com.jonschang.investing.stocks.StockExchangeService">
+	<bean id="StockExchangeService" class="com.jonschang.investing.stocks.service.StockExchangeService">
 		<property name="exchanges">
 			<map>
 				<entry key="INDEX">

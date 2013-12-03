@@ -18,7 +18,7 @@
 # along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
 ###############################
 */
-package com.jonschang.investing.stocks;
+package com.jonschang.investing.stocks.service;
 
 import java.util.*;
 import java.io.*;
@@ -27,13 +27,12 @@ import java.text.*;
 
 import org.dom4j.*;
 import org.dom4j.io.*;
-
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 
 import com.jonschang.investing.*;
-import com.jonschang.investing.stocks.StockQuoteService.QuoteRequest;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockQuoteService.QuoteRequest;
 import com.jonschang.utils.*;
 
 import java.io.IOException;

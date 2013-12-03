@@ -18,7 +18,7 @@
 # along with jSchangLib.  If not, see <http://www.gnu.org/licenses/>.
 ###############################
 */
-package com.jonschang.investing.stocks;
+package com.jonschang.investing.stocks.service;
 
 import java.util.*;
 import org.hibernate.*;

@@ -21,9 +21,10 @@
 package com.jonschang.investing.stocks;
 
 import com.jonschang.investing.Investing;
-import com.jonschang.investing.stocks.StockExchangeService;
-import com.jonschang.investing.stocks.StockService;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.service.StockExchangeService;
+import com.jonschang.investing.stocks.service.StockService;
+
 import org.junit.*;
 
 public class YahooStockServiceTest {
