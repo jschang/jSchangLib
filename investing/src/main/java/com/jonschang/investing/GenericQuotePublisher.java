@@ -102,13 +102,17 @@ public class GenericQuotePublisher<Q extends Quote<S>, S extends Quotable>
 		QuoteService<Q,S> quoteService = Investing.instance().getQuoteServiceFactory().getQuoteService(quoteClass);
 		Collection<S> quotables = new HashSet<S>();
 		quotables.add(quotable);
+		
 		int maxNum=0, thisNum;
 		for( HasQuotes<Q,S> qvs : hasQuotes ) {
 			thisNum = qvs.getPeriods();
 			maxNum = thisNum > maxNum ? thisNum : maxNum; 
 		}
+		
 		Logger.getLogger(this.getClass()).trace("Getting "+maxNum+" quotes for "+quotable.getSymbol()+" on "+date);
+		
 		List<S> quotes = quoteService.pullNumber(quotables, this.date, -(maxNum+10), timeInterval);
+		
 		if( quotes.size() > 0 && quotes.get(0).getQuotes()!=null && quotes.get(0).getQuotes().size()>=maxNum ) {
 			Date lastQuoteDate = ((List<Q>)quotes.get(0).getQuotes()).get(quotes.get(0).getQuotes().size()-1).getDate();
 			Logger.getLogger(this.getClass()).info("for quotable "+quotable.getSymbol()+", actual last quote date "+lastQuoteDate+", while expected was "+date);

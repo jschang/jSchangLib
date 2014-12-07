@@ -46,11 +46,15 @@ public class SimulatedPlatform extends AbstractPlatform<Stock,StockQuote,StockEx
 
 	Map<Account<Stock,StockQuote,StockExchange>,List<Transaction<Stock,StockQuote,StockExchange>>> transactions 
 		= new HashMap<Account<Stock,StockQuote,StockExchange>,List<Transaction<Stock,StockQuote,StockExchange>>>();
+	
 	Map<Account<Stock,StockQuote,StockExchange>,List<Position<Stock,StockQuote,StockExchange>>> positions 
 		= new HashMap<Account<Stock,StockQuote,StockExchange>,List<Position<Stock,StockQuote,StockExchange>>>();
+	
 	TimeInterval interval = null;
 	StockQuoteService service = null;
 	Double tradeCost = 4.95;
+	Date currentDate = null;
+	DatePublisher datePublisher = null;
 	
 	public SimulatedPlatform() throws Exception {
 		service = (StockQuoteService)Investing.instance().getQuoteServiceFactory().getQuoteService(StockQuote.class);
@@ -63,7 +67,6 @@ public class SimulatedPlatform extends AbstractPlatform<Stock,StockQuote,StockEx
 		tradeCost = cost;
 	}
 	
-	Date currentDate = null;
 	public void setDate(Date date) {
 		currentDate = date;
 	}
@@ -71,7 +74,6 @@ public class SimulatedPlatform extends AbstractPlatform<Stock,StockQuote,StockEx
 		return currentDate;
 	}
 	
-	DatePublisher datePublisher = null;
 	public void setDatePublisher(DatePublisher dp) {
 		this.datePublisher = dp;
 	}
@@ -262,7 +264,10 @@ public class SimulatedPlatform extends AbstractPlatform<Stock,StockQuote,StockEx
 		if( quotes==null || quotes.size()==0 || quotes.get(0).getQuotes()==null || quotes.get(0).getQuotes().size()==0 ) {
 			Logger.getLogger(this.getClass()).warn("no quotes pulled for "+q.getSymbol()+" in interval "+interval+" on "+currentDate);
 			return null;
-		} else return quotes.get(0).getQuotes().get(0);
+		} else {
+			int last = quotes.get(0).getQuotes().size()-1;
+			return quotes.get(0).getQuotes().get(last);
+		}
 	}
 	
 	/**

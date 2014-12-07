@@ -20,28 +20,24 @@
 */
 package com.jonschang.investing.stocks;
 
-import org.junit.*;
-import org.hibernate.*;
-import com.jonschang.investing.*;
-import com.jonschang.investing.stocks.model.*;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.jonschang.investing.ExchangeService;
+import com.jonschang.investing.Investing;
+import com.jonschang.investing.stocks.model.StockExchange;
 
 public class StockExchangeServiceTest {
 	
 	@Test public void testStockExchangeService() throws Exception {
-		try {
-			
-			@SuppressWarnings(value="unchecked")
-			ExchangeService<StockExchange> service = Investing.instance().getExchangeServiceFactory().get(StockExchange.class);
-			
-			StockExchange exchange = service.getExchange("nasdaqgs");
-			Assert.assertNotNull(exchange);
-			exchange = service.getExchange("nyse");
-			Assert.assertNotNull(exchange);
-		}
-		catch( Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+
+		@SuppressWarnings(value="unchecked")
+		ExchangeService<StockExchange> service = Investing.instance().getExchangeServiceFactory().get(StockExchange.class);
+		
+		StockExchange exchange = service.getExchange("nasdaqgs");
+		Assert.assertNotNull(exchange);
+		exchange = service.getExchange("nyse");
+		Assert.assertNotNull(exchange);
 	}
 
 }

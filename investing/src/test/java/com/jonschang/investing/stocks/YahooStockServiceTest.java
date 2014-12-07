@@ -20,58 +20,55 @@
 */
 package com.jonschang.investing.stocks;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.jonschang.investing.Investing;
-import com.jonschang.investing.stocks.model.*;
+import com.jonschang.investing.stocks.model.Stock;
+import com.jonschang.investing.stocks.model.StockExchange;
 import com.jonschang.investing.stocks.service.StockExchangeService;
 import com.jonschang.investing.stocks.service.StockService;
 
-import org.junit.*;
-
 public class YahooStockServiceTest {
 	@Test public void testYahooStockServiceTest() throws Exception {
+			
+		StockService service = (StockService)Investing
+			.instance()
+			.getQuotableServiceFactory()
+			.get(Stock.class);
 		
+		StockExchangeService exchangeService = (StockExchangeService)Investing
+			.instance()
+			.getExchangeServiceFactory()
+			.get(StockExchange.class);
+		
+		Stock stock = null;
+		
+		stock = new Stock();
+		stock.setSymbol("PFE");
+		stock = service.get(stock);
+		
+		Assert.assertNotNull(stock.getStockId());
+		Assert.assertNotNull(stock.getStockExchange());
+		Assert.assertNotNull(stock.getStockExchange().getStockExchangeId());
+		
+		stock = new Stock();
+		stock.setSymbol("MSFT");
+		stock = service.get(stock);
+		
+		Assert.assertNotNull(stock.getStockId());
+		Assert.assertNotNull(stock.getStockExchange());
+		Assert.assertNotNull(stock.getStockExchange().getStockExchangeId());
+		
+		stock = new Stock();
+		stock.setSymbol("MSFT");
+		stock.setStockExchange( exchangeService.getExchange("NYSE") );
+		boolean exceptionOccurred=false;
 		try {
-			
-			StockService service = (StockService)Investing
-				.instance()
-				.getQuotableServiceFactory()
-				.get(Stock.class);
-			
-			StockExchangeService exchangeService = (StockExchangeService)Investing
-				.instance()
-				.getExchangeServiceFactory()
-				.get(StockExchange.class);
-			
-			Stock stock = null;
-			
-			stock = new Stock();
-			stock.setSymbol("PFE");
-			stock = service.get(stock);
-			
-			
-			stock = new Stock();
-			stock.setSymbol("MSFT");
-			
 			service.get(stock);
-			
-			Assert.assertTrue( stock.getStockId()!=null );
-			Assert.assertTrue( stock.getStockExchange()!=null && stock.getStockExchange().getStockExchangeId()!=null );
-			
-			stock = new Stock();
-			stock.setSymbol("MSFT");
-			stock.setStockExchange( exchangeService.getExchange("NYSE") );
-			
-			boolean exceptionOccurred=false;
-			try {
-				service.get(stock);
-			} catch(Exception se) {
-				exceptionOccurred=true;
-			}
-			Assert.assertTrue(exceptionOccurred);
-			
-		} catch( Exception e ) {
-			e.printStackTrace();
-			throw e;
+		} catch(Exception se) {
+			exceptionOccurred=true;
 		}
+		Assert.assertTrue(exceptionOccurred);
 	}
 }

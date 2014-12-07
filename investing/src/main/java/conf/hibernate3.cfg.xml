@@ -30,22 +30,25 @@
         <!-- properties -->
 		<property name="connection.username">stocks</property>
 		<property name="connection.password">st0ck5</property>
+		
+		<!--
 		<property name="connection.url">jdbc:mysql://127.0.0.1:13306/stocks</property>
 		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
 		<property name="dialect">org.hibernate.dialect.MySQLDialect</property> 
-		<!-- <property name="connection.url">jdbc:sqlite:jschanglib.db</property>
+		<property name="hbm2ddl.auto">validate</property>
+		-->
+
+		<property name="connection.url">jdbc:sqlite:jschanglib.db</property>
 		<property name="connection.driver_class">org.sqlite.JDBC</property>
-		<property name="dialect">org.hibernate.dialect.SQLite3Dialect</property>-->
-		
+		<property name="dialect">org.hibernate.dialect.SQLite3Dialect</property>
+		<property name="hbm2ddl.auto">create-drop</property>
+
 		<property name="transaction.factory">org.hibernate.transaction.JTATransactionFactory</property>
 		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
 		<property name="current_session_context_class">thread</property>
 		
 		<!-- Echo all executed SQL to stdout -->
 		<property name="show_sql">false</property>
-
-		<!-- Drop and re-create the database schema on startup -->  
-		<property name="hbm2ddl.auto">create</property>
 
         <!-- mapping files -->
 

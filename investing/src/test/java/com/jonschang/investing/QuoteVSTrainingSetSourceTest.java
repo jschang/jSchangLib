@@ -92,28 +92,26 @@ public class QuoteVSTrainingSetSourceTest {
 			TrainingSetSource.Pair pair = null;
 			Assert.assertTrue(iter.hasNext());
 			pair = iter.next();
-			Assert.assertTrue(
-					pair.getInput().getData()!=null && pair.getInput().getData().size()==1 
-					&& pair.getInput().getData().get(0) == 30.229999542236328
-					&& pair.getOutput().getData()!=null && pair.getOutput().getData().size()==1 
-					&& pair.getOutput().getData().get(0) == 30.25
-				);
+			
+			Assert.assertEquals(1,pair.getInput().getData().size()); 
+			Assert.assertEquals(1,pair.getOutput().getData().size());
+			Assert.assertEquals(29.77,pair.getInput().getData().get(0),.000001); 
+			Assert.assertEquals(30.25,pair.getOutput().getData().get(0), .000001);
+			
 			Assert.assertTrue(iter.hasNext());
 			pair = iter.next();
-			Assert.assertTrue(
-					pair.getInput().getData()!=null && pair.getInput().getData().size()==1 
-					&& pair.getInput().getData().get(0) == 30.260000228881836
-					&& pair.getOutput().getData()!=null && pair.getOutput().getData().size()==1 
-					&& pair.getOutput().getData().get(0) == 29.969999313354492
-				);
+			Assert.assertEquals(1,pair.getInput().getData().size()); 
+			Assert.assertEquals(1,pair.getOutput().getData().size());
+			Assert.assertEquals(30.26,pair.getInput().getData().get(0),.000001); 
+			Assert.assertEquals(30.96,pair.getOutput().getData().get(0), .000001);
+
 			Assert.assertTrue(iter.hasNext());
 			pair = iter.next();
-			Assert.assertTrue(
-					pair.getInput().getData()!=null && pair.getInput().getData().size()==1 
-					&& pair.getInput().getData().get(0) == 30.170000076293945
-					&& pair.getOutput().getData()!=null && pair.getOutput().getData().size()==1 
-					&& pair.getOutput().getData().get(0) == 29.75
-				);
+			Assert.assertEquals(1,pair.getInput().getData().size()); 
+			Assert.assertEquals(1,pair.getOutput().getData().size());
+			Assert.assertEquals(30.17,pair.getInput().getData().get(0),.000001); 
+			Assert.assertEquals(29.75,pair.getOutput().getData().get(0), .000001);
+
 			iter=null;
 		} catch( Exception e ) {
 			e.printStackTrace();

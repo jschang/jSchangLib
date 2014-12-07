@@ -119,9 +119,6 @@ abstract public class StockQuoteService
 			m_logger.info("business calendar low and high are "+qr.busCalLow.getTime()+" and "+qr.busCalHigh.getTime());
 			m_logger.info("date range for "+qr.exchange.getSymbol()+" is "+qr.busCalLow.getTime()+" to "+qr.busCalHigh.getTime());
 			
-			// pull quotes
-			//qr.quotes = pullQuotes(qr);
-			
 			// iterate over the original quotables to create a list of missing quote ranges
 			qr.needToPull = determineNeedToPull(qr);
 			
@@ -198,8 +195,9 @@ abstract public class StockQuoteService
 			trimErrorQuotes(qr);
 			
 			// pack the stocks w/ quotes into the map for return
-			for( Stock stock : qr.quotes )
+			for( Stock stock : qr.quotes ) {
 				toRet.add(stock);
+			}
 		} // end iteration over exchangeMap
 		
 		return toRet;
@@ -353,22 +351,16 @@ abstract public class StockQuoteService
 			
 			if( quotes!=null && quotes.size()>0 ) {
 				stock.setStockQuotes(quotes);
-				toRet.add(stock);
-			}			
+			}	
+			toRet.add(stock);
 		}
 		
 		// update quote references to the stock passed in
-		if( toRet!=null )
+		if( toRet!=null ) {
 			for( Stock stock : toRet ) {
 				m_logger.info("pulled "+stock.getStockQuotes().size()+" quotes for "+stock.getSymbol());
-				/*
-				if( stock.getStockQuotes()!=null )
-					for( StockQuote quote : stock.getStockQuotes() ) {
-						quote.setStock(stock);
-						m_logger.trace("pulled quote for date "+quote.getDate()+" with close at "+quote.getPriceClose());
-					}
-				*/
 			}
+		}
 		
 		return toRet;
 	}
@@ -424,10 +416,11 @@ abstract public class StockQuoteService
 		}
 		
 		// update quote references to the stock passed in
-		if( toRet!=null )
+		if( toRet!=null ) {
 			for( Stock stock : toRet ) {
 				m_logger.info("pulled "+stock.getStockQuotes().size()+" quotes for "+stock.getSymbol());
 			}
+		}
 		
 		return toRet;
 	}

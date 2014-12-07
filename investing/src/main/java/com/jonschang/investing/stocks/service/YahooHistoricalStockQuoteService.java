@@ -59,8 +59,8 @@ public class YahooHistoricalStockQuoteService extends StockQuoteService
 	 * MONTH_END is the end month, where Jan is 0, Feb is 1, etc
 	 * DAY_END is the end day, 
 	 * YEAR_END is the end year
-	 */
-	private static String m_serviceUrl="http://ichart.finance.yahoo.com/table.csv?s={SYMBOL}&amp;a={MONTH_LOW}&amp;b={DAY_LOW}&amp;c={YEAR_LOW}&amp;d={MONTH_HIGH}&amp;e={DAY_HIGH}&amp;f={YEAR_HIGH}&amp;g=d&amp;ignore=.csv";
+	 */                                 
+	private static String m_serviceUrl="http://real-chart.finance.yahoo.com/table.csv?s={SYMBOL}&amp;a={MONTH_LOW}&amp;b={DAY_LOW}&amp;c={YEAR_LOW}&amp;d={MONTH_HIGH}&amp;e={DAY_HIGH}&amp;f={YEAR_HIGH}&amp;g=d&amp;ignore=.csv";
 	
 	/**
 	 * The Yahoo! url returning "Stock Split" Xml
@@ -115,17 +115,23 @@ public class YahooHistoricalStockQuoteService extends StockQuoteService
 			if( stock.getStockQuotes()==null )
 				stock.setStockQuotes(new ArrayList<StockQuote>());
 			
-			m_logger.trace("PROCESSING missing date ranges for "+stock.getSymbol()+" between "+qr.busCalLow.getTime().toString()+" and "+qr.busCalHigh.getTime().toString());
+			m_logger.trace("PROCESSING missing date ranges for "+stock.getSymbol()
+					+" between "+qr.busCalLow.getTime().toString()
+					+" and "+qr.busCalHigh.getTime().toString());
 			for( DateRange dateRange : missingDateRanges ) {
 				
-				m_logger.trace("about to pull missing date range from Yahoo! between "+stock.getSymbol()+" between "+dateRange.getStart()+" and "+dateRange.getEnd());
+				m_logger.trace("about to pull missing date range from Yahoo! between "+stock.getSymbol()
+						+" between "+dateRange.getStart()
+						+" and "+dateRange.getEnd());
 				
 				try {
 					try {
 						pullQuotesBetween( stock, dateRange.getStart(), dateRange.getEnd(), qr.interval, tempCal );
 					} catch( java.io.FileNotFoundException fnfe ) {
 						// there be no quotes in all of yahoo! for this period, arrrr.
-						m_logger.warn("no quotes returned from \"Yahoo!\" for "+stock.getSymbol()+" between "+dateRange.getStart().toString()+" and "+dateRange.getEnd().toString()+".");
+						m_logger.warn("no quotes returned from \"Yahoo!\" for "+stock.getSymbol()
+								+" between "+dateRange.getStart().toString()
+								+" and "+dateRange.getEnd().toString()+".");
 						// there is no result, so i should just go to the next date range
 						continue;
 					}
@@ -147,21 +153,13 @@ public class YahooHistoricalStockQuoteService extends StockQuoteService
 					throw new ServiceException("An unhandled exception occurred trying to pull quote information from Yahoo!",e);
 				}
 				
-				m_logger.trace("verifying that quotes are ordered by date");
-				StockQuote lastQ = null;
-				for( StockQuote sq : stock.getStockQuotes() ) {
-					m_logger.trace("verifying quote sort: quote date is "+sq.getDate()+" and closing is "+sq.getPriceClose() );
-					if( lastQ!=null && !lastQ.getDate().before(sq.getDate()) )
-						m_logger.error("damn, i've sorted this twice and it's still out of order?");
-					lastQ = sq;
-				}
-				
 				Session session = Investing.instance().getSessionFactory().getCurrentSession();
 				List<StockQuote> cachedQuotes = stock.getStockQuotes();
 				session.beginTransaction();
 				session.saveOrUpdate(stock);
 				session.getTransaction().commit();
 				stock.setStockQuotes(cachedQuotes); // so we don't end up with one of those damn persistence bags
+
 			} // iteration over missingDateRanges per each stock 
 		} // iteration over stocks not pulled
 	}
