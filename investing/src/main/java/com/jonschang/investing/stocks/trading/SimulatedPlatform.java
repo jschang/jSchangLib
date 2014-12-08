@@ -229,9 +229,10 @@ public class SimulatedPlatform extends AbstractPlatform<Stock,StockQuote,StockEx
 				cal.normalizeToInterval(interval);
 				long t2 = quote.getDate().getTime();
 				long t1 = cal.getTime().getTime();
+				currentDate.setTime(t2);
 				if( t1 != t2 ) {
 					Logger.getLogger(this.getClass()).warn(currentDate+" normalized to "+cal.getTime()+" was not equal to the quote date "+quote.getDate());
-					continue;
+					//continue;
 				}
 				
 				// if the transaction status is PENDING

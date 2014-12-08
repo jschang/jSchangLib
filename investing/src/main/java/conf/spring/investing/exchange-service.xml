@@ -100,6 +100,20 @@
 						</property>
 					</bean>
 				</entry>
+				<entry key="PCX">
+					<bean class="com.jonschang.investing.stocks.model.StockExchange">
+						<property name="stockExchangeId" value="5"/>
+						<property name="name" value="Pacific Exchange"/>
+						<property name="symbol" value="AMEX"/>
+						<property name="symbols">
+							<list>
+								<bean class="com.jonschang.investing.stocks.model.StockExchangeSymbol">
+									<property name="symbol" value="PCX"/>
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</entry>
 			</map>
 		</property>
 	</bean>

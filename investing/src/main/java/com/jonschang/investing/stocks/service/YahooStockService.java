@@ -27,6 +27,7 @@ import java.net.URL;
 
 import com.jonschang.investing.*;
 import com.jonschang.investing.stocks.model.*;
+import com.jonschang.utils.BusinessCalendar;
 import com.jonschang.utils.FileUtils;
 
 import org.htmlparser.*;
@@ -39,6 +40,7 @@ import org.apache.log4j.*;
 public class YahooStockService extends StockService {
 
 	private static String STOCK_EXCHANGE_URL = "http://finance.yahoo.com/d/quotes.csv?s={SYMBOL}&f=nx";
+	private static Logger m_logger = Logger.getLogger(YahooStockService.class);
 	
 	protected Stock pullStockFromWebService(Stock stock) throws ServiceException {
 		 
@@ -124,7 +126,7 @@ public class YahooStockService extends StockService {
 						: sectorNodes.toHtml().trim()
 					);
 					saveOrUpdate = true;
-				} else throw new NotFoundException("Could not find sector and industry information for "+stock.getSymbol());
+				} else m_logger.warn("Could not find sector and industry information for "+stock.getSymbol());
 			} else {
 				Logger.getLogger(this.getClass()).info("Skipping attempt to obtain sector and industry for Index quotable "+stock.getSymbol());
 				stock.setSector("index");

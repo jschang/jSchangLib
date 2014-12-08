@@ -41,7 +41,8 @@
 		<property name="connection.url">jdbc:sqlite:jschanglib.db</property>
 		<property name="connection.driver_class">org.sqlite.JDBC</property>
 		<property name="dialect">org.hibernate.dialect.SQLite3Dialect</property>
-		<property name="hbm2ddl.auto">create-drop</property>
+		<property name="hbm2ddl.auto">update</property>
+		<!--<property name="hbm2ddl.auto">create-drop</property>-->
 
 		<property name="transaction.factory">org.hibernate.transaction.JTATransactionFactory</property>
 		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
